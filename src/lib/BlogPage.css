@@ -1,0 +1,23 @@
+.blog-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.blog-error {
+  padding: 16px;
+}
+
+.blog-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+  min-height: 100vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.back-button {
+  color: white !important;
+}
