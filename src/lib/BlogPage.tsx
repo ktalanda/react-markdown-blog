@@ -9,15 +9,9 @@ import BlogPostCard from "./BlogPostCard";
 import BlogPost from "./BlogPost";
 import BlogService from "./services/BlogService";
 import { Footer } from 'react-wavecoder-components';
+import type { BlogProps } from "./Blog";
 
-import type { BlogServiceType } from "./services/BlogService";
-
-interface BlogPageProps {
-  footerName: string;
-  serviceType: BlogServiceType;
-}
-
-const BlogPage: React.FC<BlogPageProps> = ({ serviceType, footerName }) => {
+const BlogPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

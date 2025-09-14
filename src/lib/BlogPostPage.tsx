@@ -10,15 +10,16 @@ import BlogPost from './BlogPost';
 import BlogService from './services/BlogService';
 import { Footer } from 'react-wavecoder-components';
 import './BlogPostPage.css';
+import type { BlogProps } from './Blog';
 
-const BlogPostPage: React.FC = () => {
+const BlogPostPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const blogService: BlogService = useMemo(() => BlogService.create('s3'), []);
+  const blogService: BlogService = useMemo(() => BlogService.create(serviceType), [serviceType]);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -115,7 +116,7 @@ const BlogPostPage: React.FC = () => {
         </ReactMarkdown>
       </Box>
       
-      <Footer name="Kamil Tałanda"/>
+      <Footer name={footerName}/>
     </Box>
   );
 };
