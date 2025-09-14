@@ -1,9 +1,5 @@
-
-import './App.css';
-
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import Blog, { type BlogServiceType } from './lib';
-
 
 function LandingPage() {
   const navigate = useNavigate();
