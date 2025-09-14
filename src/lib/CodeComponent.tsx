@@ -2,7 +2,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const CodeComponent = (props: any) => {
-    const {children, className, node, ...rest} = props;
+    const {children, className, ...rest} = props;
     const match = /language-(\w+)/.exec(className || '');
     return match ? (
       <SyntaxHighlighter

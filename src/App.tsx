@@ -2,7 +2,7 @@
 import './App.css';
 
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
-import Blog from './lib/Blog';
+import Blog, { type BlogServiceType } from './lib';
 
 
 function LandingPage() {
@@ -21,7 +21,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/blog/*" element={<Blog serviceType={{ source: 'mock' }} footerName="Sample Blog" />} />
+        <Route path="/blog/*" element={<Blog serviceType={{ source: 'mock' } as BlogServiceType} footerName="Sample Blog" />} />
       </Routes>
     </BrowserRouter>
   );
