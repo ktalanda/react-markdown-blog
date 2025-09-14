@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 
-import BlogPage from './BlogPage';
-import BlogPostPage from './BlogPostPage';
+import Page from './Page';
+import PostPage from './PostPage';
 
 import type { BlogServiceType } from './services/BlogService';
 
@@ -12,8 +12,8 @@ export interface BlogProps {
 
 const Blog: React.FC<BlogProps> = (props) => (
     <Routes>
-        <Route path="/" element={<BlogPage {...props} />} />
-        <Route path="/:postId" element={<BlogPostPage {...props} />} />
+  <Route path="/" element={<Page {...props} />} />
+        <Route path="/:postId" element={<PostPage {...props} />} />
     </Routes>
 );
 

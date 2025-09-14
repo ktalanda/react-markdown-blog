@@ -1,4 +1,4 @@
-export class BlogPost {
+export class Post {
   readonly name: string;
   readonly date: Date;
   readonly content: string;
@@ -10,11 +10,11 @@ export class BlogPost {
     content: string;
     folder: string;
   }) {
-    if (!data.name?.trim()) throw new Error('BlogPost name is required');
-    if (!data.content?.trim()) throw new Error('BlogPost content is required');
-    if (!data.folder?.trim()) throw new Error('BlogPost folder is required');
+    if (!data.name?.trim()) throw new Error('Post name is required');
+    if (!data.content?.trim()) throw new Error('Post content is required');
+    if (!data.folder?.trim()) throw new Error('Post folder is required');
     if (!(data.date instanceof Date) || isNaN(data.date.getTime())) {
-      throw new Error('BlogPost date must be a valid Date');
+      throw new Error('Post date must be a valid Date');
     }
 
     this.name = data.name;
@@ -38,4 +38,4 @@ export class BlogPost {
   }
 }
 
-export default BlogPost;
+export default Post;

@@ -4,12 +4,12 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { useNavigate } from 'react-router-dom';
-import './BlogPostCard.css';
+import './PostCard.css';
 
-import BlogPost from "./BlogPost";
+import Post from "./Post";
 import CodeComponent from "./CodeComponent";
 
-const BlogPostCard: React.FC<{ post: BlogPost }> = ({ post }) => {
+const PostCard: React.FC<{ post: Post }> = ({ post }) => {
   const navigate = useNavigate();
   const handleClick = () => {
     navigate(`/blog/${post.folder}`);
@@ -37,4 +37,4 @@ const BlogPostCard: React.FC<{ post: BlogPost }> = ({ post }) => {
   );
 };
 
-export default BlogPostCard;
+export default PostCard;

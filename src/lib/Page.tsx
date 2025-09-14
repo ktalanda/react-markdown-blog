@@ -3,20 +3,20 @@ import Text from "@mui/material/Typography";
 import { Box, CircularProgress, Alert, Button } from "@mui/material";
 import { ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import './BlogPage.css';
+import './Page.css';
 
-import BlogPostCard from "./BlogPostCard";
-import BlogPost from "./BlogPost";
-import BlogService from "./services/BlogService";
+import PostCard from "./PostCard";
+import Post from "./Post";
+import Service from "./services/Service";
 import { Footer } from 'react-wavecoder-components';
 import type { BlogProps } from "./Blog";
 
-const BlogPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
+const Page: React.FC<BlogProps> = ({ serviceType, footerName }) => {
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const blogService: BlogService = useMemo(() => BlogService.create(serviceType), [serviceType]);
+  const blogService: Service = useMemo(() => Service.create(serviceType), [serviceType]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,7 +69,7 @@ const BlogPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
         <Text variant="body1">No blog posts found.</Text>
       ) : (
         posts.map((post) => (
-          <BlogPostCard 
+          <PostCard 
             key={post.folder} 
             post={post} 
           />
@@ -81,4 +81,4 @@ const BlogPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
   );
 };
 
-export default BlogPage;
+export default Page;

@@ -6,20 +6,20 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import CodeComponent from './CodeComponent';
-import BlogPost from './BlogPost';
-import BlogService from './services/BlogService';
+import Post from './Post';
+import Service from './services/Service';
 import { Footer } from 'react-wavecoder-components';
-import './BlogPostPage.css';
+import './PostPage.css';
 import type { BlogProps } from './Blog';
 
-const BlogPostPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
+const PostPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
-  const [post, setPost] = useState<BlogPost | null>(null);
+  const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const blogService: BlogService = useMemo(() => BlogService.create(serviceType), [serviceType]);
+  const blogService: Service = useMemo(() => Service.create(serviceType), [serviceType]);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -121,4 +121,4 @@ const BlogPostPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
   );
 };
 
-export default BlogPostPage;
+export default PostPage;
