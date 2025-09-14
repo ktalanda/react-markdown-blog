@@ -13,7 +13,7 @@ export interface BlogProps {
 const Blog: React.FC<BlogProps> = (props) => (
     <Routes>
         <Route path="/" element={<BlogPage {...props} />} />
-        <Route path="/blog/:postId" element={<BlogPostPage {...props} />} />
+        <Route path="/:postId" element={<BlogPostPage {...props} />} />
     </Routes>
 );
 
