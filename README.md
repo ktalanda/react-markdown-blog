@@ -1,5 +1,5 @@
 
-# react-markdown-blog ![CI](https://github.com/ktalanda/react-markdown-blog/actions/workflows/publish.yml/badge.svg?branch=main)
+# react-markdown-blog [![Publish to npm](https://github.com/ktalanda/react-markdown-blog/actions/workflows/publish.yml/badge.svg)](https://github.com/ktalanda/react-markdown-blog/actions/workflows/publish.yml)
 
 `react-markdown-blog` is a React component library for hosting a blog with posts written in Markdown. It supports blog content stored in S3 or locally (mock), and renders posts with full Markdown and code highlighting support.
 
