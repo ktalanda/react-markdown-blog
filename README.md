@@ -1,69 +1,48 @@
-# react-markdown-blog
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# react-markdown-blog ![CI](https://github.com/ktalanda/react-markdown-blog/actions/workflows/publish.yml/badge.svg?branch=main)
 
-Currently, two official plugins are available:
+`react-markdown-blog` is a React component library for hosting a blog with posts written in Markdown. It supports blog content stored in S3 or locally (mock), and renders posts with full Markdown and code highlighting support.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## S3 Blog Format
 
-## Expanding the ESLint configuration
+When using S3 as the backend, your bucket should have the following structure:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+250101/content.md
+250202/content.md
+manifest.json
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- Each folder (e.g. `250101`) represents a post, where the name is the date in `YYMMDD` format.
+- Each folder contains a `content.md` file with the Markdown content.
+- `manifest.json` is a JSON array listing all post folder names (e.g. `["250101", "250202"]`).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Usage
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+You must wrap the blog in a `react-router-dom` router. Here is a sample usage from `src/App.tsx`:
+
+- S3 - renders the blog hosted in S3 bucket.
+```tsx
+    <BrowserRouter>
+      <Routes>
+        ...
+        <Route path="/blog/*" element={<Blog serviceType={{ source: 's3', bucket: '{bucket_url}' } as ServiceType} footerName="Sample Blog" />} />
+      </Routes>
+    </BrowserRouter>
 ```
+
+- Mock - for testing only.
+```tsx
+    <BrowserRouter>
+      <Routes>
+        ...
+        <Route path="/blog/*" element={<Blog serviceType={{ source: 'mock' } as ServiceType} footerName="Sample Blog" />} />
+      </Routes>
+    </BrowserRouter>
+```
+
+## Features
+- Renders Markdown blog posts with code highlighting
+- Supports S3 and local/mock backends
+- Date-based folder structure for posts
+- Easy integration with React Router
