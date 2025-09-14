@@ -16,13 +16,13 @@ const Page: React.FC<BlogProps> = ({ serviceType, footerName }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const blogService: Service = useMemo(() => Service.create(serviceType), [serviceType]);
+  const service: Service = useMemo(() => Service.create(serviceType), [serviceType]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBlogPosts = async () => {
       try {
-        const posts = await blogService.fetchBlogPosts();
+        const posts = await service.fetchBlogPosts();
         setPosts(posts);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -32,7 +32,7 @@ const Page: React.FC<BlogProps> = ({ serviceType, footerName }) => {
     };
 
     fetchBlogPosts();
-  }, [blogService]);
+  }, [service]);
 
   const handleBackClick = () => {
     navigate('/');

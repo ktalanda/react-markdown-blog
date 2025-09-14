@@ -1,5 +1,5 @@
 import Blog from "./Blog";
 import "./index.css";
 
-export type { BlogServiceType } from "./services/BlogService";
+export type { ServiceType } from "./services/Service";
 export default Blog;

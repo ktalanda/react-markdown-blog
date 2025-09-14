@@ -4,11 +4,11 @@ import { Routes, Route } from 'react-router-dom';
 import Page from './Page';
 import PostPage from './PostPage';
 
-import type { BlogServiceType } from './services/BlogService';
+import type { ServiceType } from './services/Service';
 
 export interface BlogProps {
   footerName: string;
-  serviceType: BlogServiceType;
+  serviceType: ServiceType;
   theme?: Theme;
 }
 

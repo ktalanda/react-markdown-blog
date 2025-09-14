@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
-import Blog, { type BlogServiceType } from './lib';
+import Blog, { type ServiceType } from './lib';
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/blog/*" element={<Blog serviceType={{ source: 'mock' } as BlogServiceType} footerName="Sample Blog" />} />
+        <Route path="/blog/*" element={<Blog serviceType={{ source: 'mock' } as ServiceType} footerName="Sample Blog" />} />
       </Routes>
     </BrowserRouter>
   );

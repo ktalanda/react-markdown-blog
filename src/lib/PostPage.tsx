@@ -19,7 +19,7 @@ const PostPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const blogService: Service = useMemo(() => Service.create(serviceType), [serviceType]);
+  const service: Service = useMemo(() => Service.create(serviceType), [serviceType]);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -30,7 +30,7 @@ const PostPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
       }
 
       try {
-        const foundPost = await blogService.fetchBlogPostById(postId);
+        const foundPost = await service.fetchBlogPostById(postId);
         if (!foundPost) {
           setError('Post not found');
         } else {
@@ -44,7 +44,7 @@ const PostPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
     };
 
     fetchPost();
-  }, [postId, blogService]);
+  }, [postId, service]);
 
   const handleBackClick = () => {
     navigate('/blog');
