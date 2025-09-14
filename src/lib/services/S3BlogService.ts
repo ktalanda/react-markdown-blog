@@ -1,7 +1,6 @@
 import BlogPost from "../BlogPost";
 import BlogService from "./BlogService";
 
-
 class S3BlogService implements BlogService {
   private readonly cdnUrl: string;
 
