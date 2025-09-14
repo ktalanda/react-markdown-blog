@@ -10,7 +10,7 @@
   "scripts": {
     "build:lib": "tsc -p tsconfig.lib.json",
     "prepublishOnly": "npm run build:lib",
-    "dev": "vite",
+    "postbuild:lib": "cpx \"src/lib/**/*.css\" dist/",    "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -33,6 +33,7 @@
     "@types/react-dom": "^19.1.7",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@vitejs/plugin-react-swc": "^4.0.0",
+    "cpx": "^1.5.0",
     "eslint": "^9.33.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
