@@ -5,7 +5,7 @@ const samplePosts: Post[] = [
   new Post({
     name: "First Post",
     date: new Date("2025-09-01"),
-    content: "# First Post\nThis is the content of the first post.\nIt supports **Markdown** formatting!",
+    content: `# First Post\nThis is the content of the first post.\nIt supports **Markdown** formatting!\n\nHere is a code example:\n\n\u0060\u0060\u0060js\nconsole.log('Hello, world!');\n\u0060\u0060\u0060`,
     folder: "first-post"
   }),
   new Post({
