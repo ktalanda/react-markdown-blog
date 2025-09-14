@@ -2,10 +2,10 @@ import Post from "../Post";
 import Service from "./Service";
 
 class S3Service implements Service {
-  private readonly cdnUrl: string;
+  private readonly bucket: string;
 
-  constructor(cdnUrl: string) {
-    this.cdnUrl = cdnUrl;
+  constructor(bucket: string) {
+    this.bucket = bucket;
   }
 
   private parseFolderName(folderName: string): { date: Date; } | null {
@@ -24,7 +24,7 @@ class S3Service implements Service {
         blogFolders.map(async (folderName) => {
           try {
             const contentResponse = await fetch(
-              `${this.cdnUrl}/${folderName}/content.md`
+              `${this.bucket}/${folderName}/content.md`
             );
             if (!contentResponse.ok) {
               return null;
@@ -55,7 +55,7 @@ class S3Service implements Service {
       const folderName = manifest.find(name => name === postId);
       if (!folderName) return null;
       const contentResponse = await fetch(
-        `${this.cdnUrl}/${folderName}/content.md`
+        `${this.bucket}/${folderName}/content.md`
       );
       if (!contentResponse.ok) return null;
       const content = await contentResponse.text();
@@ -72,7 +72,7 @@ class S3Service implements Service {
   }
 
   private async fetchManifestFromServer(): Promise<string[]> {
-    const manifestResponse = await fetch(`${this.cdnUrl}/manifest.json`);
+    const manifestResponse = await fetch(`${this.bucket}/manifest.json`);
     return await manifestResponse.json();
   }
 }
