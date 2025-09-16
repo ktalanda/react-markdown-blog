@@ -13,17 +13,17 @@ export interface BlogProps {
 }
 
 const defaultTheme = createTheme({
- palette: {
+  palette: {
     primary: {
-      main: "#fff",
+      main: '#fff',
     },
     secondary: {
-      main: "#4fc3f7",
+      main: '#4fc3f7',
     },
     text: {
-      primary: "#fff",
-      secondary: "#4fc3f7",
-      disabled: "#999",
+      primary: '#fff',
+      secondary: '#4fc3f7',
+      disabled: '#999',
     },
   },
 });

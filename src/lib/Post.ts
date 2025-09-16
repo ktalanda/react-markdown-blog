@@ -30,10 +30,10 @@ export class Post {
   }
 
   getFormattedDate(): string {
-      return this.date.toLocaleDateString('en-UK', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+    return this.date.toLocaleDateString('en-UK', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   }
 }

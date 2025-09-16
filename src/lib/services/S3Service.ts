@@ -1,6 +1,6 @@
-import Post from "../Post";
-import Service from "./Service";
-import parseFolderName from "./parseFolderName";
+import Post from '../Post';
+import Service from './Service';
+import parseFolderName from './parseFolderName';
 
 class S3Service implements Service {
   private readonly bucket: string;
@@ -23,7 +23,7 @@ class S3Service implements Service {
               return null;
             }
             const content = await contentResponse.text();
-            const parsed = parseFolderName(folderName)!;
+            const parsed = parseFolderName(folderName);
             return new Post({
               name: folderName,
               date: parsed.date,
@@ -52,7 +52,7 @@ class S3Service implements Service {
       );
       if (!contentResponse.ok) return null;
       const content = await contentResponse.text();
-      const parsed = parseFolderName(folderName)!;
+      const parsed = parseFolderName(folderName);
       return new Post({
         name: folderName,
         date: parsed.date,

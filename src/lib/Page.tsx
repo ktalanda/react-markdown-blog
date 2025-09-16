@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useMemo } from "react";
-import Text from "@mui/material/Typography";
-import { Box, CircularProgress, Alert, Button } from "@mui/material";
+import React, { useState, useEffect, useMemo } from 'react';
+import Text from '@mui/material/Typography';
+import { Box, CircularProgress, Alert, Button } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import './Page.css';
 
-import PostCard from "./PostCard";
-import Post from "./Post";
-import Service from "./services/Service";
+import PostCard from './PostCard';
+import Post from './Post';
+import Service from './services/Service';
 import { Footer } from 'react-wavecoder-components';
-import type { BlogProps } from "./Blog";
+import type { BlogProps } from './Blog';
 
 const Page: React.FC<BlogProps> = ({ serviceType, footerName }) => {
   const [posts, setPosts] = useState<Post[]>([]);

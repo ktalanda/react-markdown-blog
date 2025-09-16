@@ -1,13 +1,13 @@
-import Text from "@mui/material/Typography";
-import { Box, Card, CardContent, CardActionArea } from "@mui/material";
+import Text from '@mui/material/Typography';
+import { Box, Card, CardContent, CardActionArea } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { useNavigate } from 'react-router-dom';
 import './PostCard.css';
 
-import Post from "./Post";
-import CodeComponent from "./CodeComponent";
+import Post from './Post';
+import CodeComponent from './CodeComponent';
 
 const PostCard: React.FC<{ post: Post }> = ({ post }) => {
   const navigate = useNavigate();

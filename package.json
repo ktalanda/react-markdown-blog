@@ -14,7 +14,8 @@
     "postbuild:lib": "cpx \"src/lib/**/*.css\" dist/",
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint --ext .js,.ts,.tsx src/",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "preview": "vite preview",
     "test": "jest"
   },
