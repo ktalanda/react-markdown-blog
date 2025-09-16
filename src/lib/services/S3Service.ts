@@ -1,5 +1,6 @@
 import Post from "../Post";
 import Service from "./Service";
+import parseFolderName from "./parseFolderName";
 
 class S3Service implements Service {
   private readonly bucket: string;
@@ -8,18 +9,10 @@ class S3Service implements Service {
     this.bucket = bucket;
   }
 
-  private parseFolderName(folderName: string): { date: Date; } | null {
-    const dateStr = folderName;
-    const year = 2000 + parseInt(dateStr.substring(0, 2));
-    const month = parseInt(dateStr.substring(2, 4)) - 1; // Month is 0-based
-    const day = parseInt(dateStr.substring(4, 6));
-    return { date: new Date(year, month, day) };
-  }
-
   async fetchBlogPosts(): Promise<Post[]> {
     try {
       const manifest = await this.fetchManifestFromServer();
-      const blogFolders = manifest.filter(name => this.parseFolderName(name) !== null);
+      const blogFolders = manifest.filter(name => parseFolderName(name) !== null);
       const postsWithContent = await Promise.all(
         blogFolders.map(async (folderName) => {
           try {
@@ -30,7 +23,7 @@ class S3Service implements Service {
               return null;
             }
             const content = await contentResponse.text();
-            const parsed = this.parseFolderName(folderName)!;
+            const parsed = parseFolderName(folderName)!;
             return new Post({
               name: folderName,
               date: parsed.date,
@@ -59,7 +52,7 @@ class S3Service implements Service {
       );
       if (!contentResponse.ok) return null;
       const content = await contentResponse.text();
-      const parsed = this.parseFolderName(folderName)!;
+      const parsed = parseFolderName(folderName)!;
       return new Post({
         name: folderName,
         date: parsed.date,
