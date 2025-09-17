@@ -68,7 +68,7 @@ class S3Service implements Service {
 
   private async fetchManifestFromServer(): Promise<string[]> {
     const manifestResponse = await fetch(`${this.bucket}/manifest.json`);
-    return await manifestResponse.json();
+    return await manifestResponse.json() as string[];
   }
 }
 

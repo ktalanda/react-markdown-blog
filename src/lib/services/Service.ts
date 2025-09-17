@@ -17,7 +17,7 @@ abstract class Service {
     case 'mock':
       return new MockService();
     default:
-      throw new Error(`Unknown blog service type: ${type}`);
+      throw new Error(`Unknown blog service type: ${(type as ServiceType).source}`);
     }
   }
 }
