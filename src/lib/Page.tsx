@@ -1,26 +1,25 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import Text from '@mui/material/Typography';
-import { Box, CircularProgress, Alert, Button } from '@mui/material';
+import { useEffect, useMemo, useState } from 'react';
+import { Alert, Box, Button, CircularProgress } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import './Page.css';
-
-import PostCard from './PostCard';
-import Post from './Post';
-import Service from './services/Service';
+import Text from '@mui/material/Typography';
 import { Footer } from 'react-wavecoder-components';
-import type { BlogProps } from './Blog';
+import { useNavigate } from 'react-router-dom';
 
-const Page: React.FC<BlogProps> = ({ serviceType, footerName }) => {
-  const [posts, setPosts] = useState<Post[]>([]);
+import type { BlogProps } from './Blog';
+import Service from './services/Service';
+import type Post from './Post';
+import PostCard from './PostCard';
+
+const Page: React.FC<BlogProps> = ({ footerName, serviceType }) => {
   const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState<string | null>(null);
-  
+
   const service: Service = useMemo(() => Service.create(serviceType), [serviceType]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchBlogPosts = async () => {
+    const fetchBlogPosts = async (): Promise<void> => {
       try {
         const posts = await service.fetchBlogPosts();
         setPosts(posts);
@@ -30,18 +29,18 @@ const Page: React.FC<BlogProps> = ({ serviceType, footerName }) => {
         setLoading(false);
       }
     };
-
-    fetchBlogPosts();
+    void fetchBlogPosts();
   }, [service]);
 
-  const handleBackClick = () => {
-    navigate('/');
+  const handleBackClick = (): void => {
+    void navigate('/blog');
   };
+
 
   if (loading) {
     return (
       <Box className="blog-loading">
-        <CircularProgress />
+        <CircularProgress color="primary" />
       </Box>
     );
   }

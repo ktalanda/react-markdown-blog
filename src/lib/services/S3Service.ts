@@ -24,6 +24,7 @@ class S3Service implements Service {
             }
             const content = await contentResponse.text();
             const parsed = parseFolderName(folderName);
+            if (!parsed) return null;
             return new Post({
               name: folderName,
               date: parsed.date,
@@ -53,6 +54,7 @@ class S3Service implements Service {
       if (!contentResponse.ok) return null;
       const content = await contentResponse.text();
       const parsed = parseFolderName(folderName);
+      if (!parsed) return null;
       return new Post({
         name: folderName,
         date: parsed.date,

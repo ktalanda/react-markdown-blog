@@ -11,8 +11,8 @@ import CodeComponent from './CodeComponent';
 
 const PostCard: React.FC<{ post: Post }> = ({ post }) => {
   const navigate = useNavigate();
-  const handleClick = () => {
-    navigate(`/blog/${post.folder}`);
+  const handleClick = (): void => {
+    void navigate(`/blog/${post.folder}`);
   };
 
   return (
