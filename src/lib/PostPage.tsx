@@ -1,28 +1,34 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, CircularProgress, Alert, Button } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
+import { Box, Typography, Button, Alert, CircularProgress } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import CodeComponent from './CodeComponent';
-import Post from './Post';
-import Service from './services/Service';
 import { Footer } from 'react-wavecoder-components';
-import './PostPage.css';
-import type { BlogProps } from './Blog';
 
-const PostPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
+import type { BlogProps } from './Blog';
+import { useEffect, useMemo, useState } from 'react';
+import type { Post } from './Post';
+import { useNavigate, useParams } from 'react-router-dom';
+import Service from './services/Service';
+
+import './PostPage.css';
+
+const PostPage: React.FC<BlogProps> = ({ footerName, serviceType }) => {
   const { postId } = useParams<{ postId: string }>();
-  const navigate = useNavigate();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const service: Service = useMemo(() => Service.create(serviceType), [serviceType]);
+  const navigate = useNavigate();
+
+  const handleBackClick = (): void => {
+    void navigate('/blog');
+  };
 
   useEffect(() => {
-    const fetchPost = async () => {
+    const fetchPost = async (): Promise<void> => {
       if (!postId) {
         setError('No post ID provided');
         setLoading(false);
@@ -43,12 +49,8 @@ const PostPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
       }
     };
 
-    fetchPost();
+    void fetchPost();
   }, [postId, service]);
-
-  const handleBackClick = () => {
-    navigate('/blog');
-  };
 
   if (loading) {
     return (
@@ -72,7 +74,6 @@ const PostPage: React.FC<BlogProps> = ({ serviceType, footerName }) => {
       </Box>
     );
   }
-
   if (!post) {
     return (
       <Box className="blog-post-error">

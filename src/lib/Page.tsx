@@ -10,6 +10,8 @@ import Service from './services/Service';
 import type Post from './Post';
 import PostCard from './PostCard';
 
+import './Page.css';
+
 const Page: React.FC<BlogProps> = ({ footerName, serviceType }) => {
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<Post[]>([]);
