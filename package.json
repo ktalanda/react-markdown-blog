@@ -1,6 +1,6 @@
 {
   "name": "react-markdown-blog",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": false,
   "type": "module",
   "main": "dist/index.js",
@@ -17,7 +17,12 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "preview": "vite preview",
-    "test": "jest"
+    "test": "jest",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major",
+    "release:patch": "standard-version --release-as patch",
+    "release:dry-run": "standard-version --dry-run"
   },
   "dependencies": {
     "@mui/icons-material": "^7.3.2",
