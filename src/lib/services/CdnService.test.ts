@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import S3Service from './CdnService';
 import Post from '../Post';
 
@@ -251,7 +250,6 @@ describe('S3Service', () => {
     it('should return null for empty folder name', async () => {
       // Act
       // @ts-expect-error - Testing private method
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       const post = await s3Service.fetchPostByFolderName('');
 
       // Assert
