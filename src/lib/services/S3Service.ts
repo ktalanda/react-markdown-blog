@@ -10,60 +10,35 @@ class S3Service implements Service {
   }
 
   async fetchBlogPosts(): Promise<Post[]> {
-    try {
-      const manifest = await this.fetchManifestFromServer();
-      const blogFolders = manifest.filter(name => parseFolderName(name) !== null);
-      const postsWithContent = await Promise.all(
-        blogFolders.map(async (folderName) => {
-          try {
-            const contentResponse = await fetch(
-              `${this.bucket}/${folderName}/content.md`
-            );
-            if (!contentResponse.ok) {
-              return null;
-            }
-            const content = await contentResponse.text();
-            const parsed = parseFolderName(folderName);
-            if (!parsed) return null;
-            return new Post({
-              name: folderName,
-              date: parsed.date,
-              content: content,
-              folder: folderName
-            });
-          } catch {
-            return null;
-          }
-        })
-      );
-      return postsWithContent.filter((post): post is Post => post !== null)
-        .sort((a, b) => b.date.getTime() - a.date.getTime());
-    } catch {
-      throw new Error('Failed to fetch blog posts from S3');
-    }
+    const manifest = await this.fetchManifestFromServer();
+    const blogFolders = manifest.filter(name => parseFolderName(name) !== null);
+    const postsWithContent = await Promise.all(
+      blogFolders.map(async (folderName) => await this.fetchPostByFolderName(folderName))
+    );
+    return postsWithContent.filter((post): post is Post => post !== null)
+      .sort((a, b) => b.date.getTime() - a.date.getTime());
   }
 
   async fetchBlogPostById(postId: string): Promise<Post | null> {
-    try {
-      const manifest = await this.fetchManifestFromServer();
-      const folderName = manifest.find(name => name === postId);
-      if (!folderName) return null;
-      const contentResponse = await fetch(
-        `${this.bucket}/${folderName}/content.md`
-      );
-      if (!contentResponse.ok) return null;
-      const content = await contentResponse.text();
-      const parsed = parseFolderName(folderName);
-      if (!parsed) return null;
-      return new Post({
-        name: folderName,
-        date: parsed.date,
-        content: content,
-        folder: folderName
-      });
-    } catch {
-      throw new Error('Failed to fetch blog post from S3');
-    }
+    const manifest = await this.fetchManifestFromServer();
+    const folderName = manifest.find(name => name === postId);
+    return await this.fetchPostByFolderName(folderName || '');
+  }
+
+  private async fetchPostByFolderName(folderName: string): Promise<Post | null> {
+    if (!folderName) return null;
+    const contentResponse = await fetch(`${this.bucket}/${folderName}/content.md`);
+    if (!contentResponse.ok) return null;
+
+    const parsed = parseFolderName(folderName);
+    const content = await contentResponse.text();
+    if (!parsed) return null;
+    return new Post({
+      name: folderName,
+      date: parsed.date,
+      content: content,
+      folder: folderName
+    });
   }
 
   private async fetchManifestFromServer(): Promise<string[]> {
