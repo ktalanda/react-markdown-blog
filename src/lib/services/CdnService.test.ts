@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import S3Service from './S3Service';
+import S3Service from './CdnService';
 import Post from '../Post';
 
 // Mock global fetch
@@ -271,8 +271,7 @@ describe('S3Service', () => {
       );
 
       // Act
-      // @ts-expect-error - Testing private method
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+      // @ts-expect-error - Testing private method 
       const post = await s3Service.fetchPostByFolderName(folderName);
 
       // Assert

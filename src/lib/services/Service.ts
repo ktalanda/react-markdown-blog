@@ -1,9 +1,9 @@
 import Post from '../Post';
-import S3Service from './S3Service';
+import CdnService from './CdnService';
 import MockService from './MockService';
 
 export type ServiceType =
-  | { source: 's3'; bucket: string }
+  | { source: 'cdn'; url: string }
   | { source: 'mock' };
 
 abstract class Service {
@@ -12,8 +12,8 @@ abstract class Service {
 
   static create(type: ServiceType): Service {
     switch (type.source) {
-    case 's3':
-      return new S3Service(type.bucket);
+    case 'cdn':
+      return new CdnService(type.url);
     case 'mock':
       return new MockService();
     default:

@@ -2,11 +2,11 @@ import Post from '../Post';
 import Service from './Service';
 import parseFolderName from './parseFolderName';
 
-class S3Service implements Service {
-  private readonly bucket: string;
+class CdnService implements Service {
+  private readonly url: string;
 
-  constructor(bucket: string) {
-    this.bucket = bucket;
+  constructor(url: string) {
+    this.url = url;
   }
 
   async fetchBlogPosts(): Promise<Post[]> {
@@ -27,7 +27,7 @@ class S3Service implements Service {
 
   private async fetchPostByFolderName(folderName: string): Promise<Post | null> {
     if (!folderName) return null;
-    const contentResponse = await fetch(`${this.bucket}/${folderName}/content.md`);
+    const contentResponse = await fetch(`${this.url}/${folderName}/content.md`);
     if (!contentResponse.ok) return null;
 
     const parsed = parseFolderName(folderName);
@@ -42,9 +42,9 @@ class S3Service implements Service {
   }
 
   private async fetchManifestFromServer(): Promise<string[]> {
-    const manifestResponse = await fetch(`${this.bucket}/manifest.json`);
+    const manifestResponse = await fetch(`${this.url}/manifest.json`);
     return await manifestResponse.json() as string[];
   }
 }
 
-export default S3Service;
+export default CdnService;
