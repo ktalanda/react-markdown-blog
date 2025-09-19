@@ -2,7 +2,6 @@
   "name": "react-markdown-blog",
   "version": "0.0.5",
   "private": false,
-  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
