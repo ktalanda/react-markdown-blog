@@ -23,12 +23,12 @@ const samplePosts: Post[] = [
 ];
 
 class MockService implements Service {
-  async fetchBlogPosts(): Promise<Post[]> {
+  async fetchPosts(): Promise<Post[]> {
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
     return samplePosts;
   }
 
-  async fetchBlogPostById(postId: string): Promise<Post | null> {
+  async fetchPostById(postId: string): Promise<Post | null> {
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
     const post = samplePosts.find(post => post.folder === postId);
     return post || null;

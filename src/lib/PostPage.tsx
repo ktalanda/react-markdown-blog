@@ -36,7 +36,7 @@ const PostPage: React.FC<BlogProps> = ({ footerName, serviceType }) => {
       }
 
       try {
-        const foundPost = await service.fetchBlogPostById(postId);
+        const foundPost = await service.fetchPostById(postId);
         if (!foundPost) {
           setError('Post not found');
         } else {

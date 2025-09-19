@@ -46,7 +46,7 @@ describe('S3Service', () => {
       );
 
       // Act
-      const posts = await s3Service.fetchBlogPosts();
+      const posts = await s3Service.fetchPosts();
 
       // Assert
       expect(posts).toHaveLength(3);
@@ -97,7 +97,7 @@ describe('S3Service', () => {
       );
 
       // Act
-      const posts = await s3Service.fetchBlogPosts();
+      const posts = await s3Service.fetchPosts();
 
       // Assert
       expect(posts).toHaveLength(2);
@@ -129,7 +129,7 @@ describe('S3Service', () => {
       );
 
       // Act
-      const posts = await s3Service.fetchBlogPosts();
+      const posts = await s3Service.fetchPosts();
 
       // Assert
       expect(posts).toHaveLength(1);
@@ -158,7 +158,7 @@ describe('S3Service', () => {
       );
 
       // Act
-      const post = await s3Service.fetchBlogPostById(postId);
+      const post = await s3Service.fetchPostById(postId);
 
       // Assert
       expect(post).toBeInstanceOf(Post);
@@ -184,7 +184,7 @@ describe('S3Service', () => {
       );
 
       // Act
-      const post = await s3Service.fetchBlogPostById(postId);
+      const post = await s3Service.fetchPostById(postId);
 
       // Assert
       expect(post).toBeNull();
@@ -213,7 +213,7 @@ describe('S3Service', () => {
       );
 
       // Act
-      const post = await s3Service.fetchBlogPostById(postId);
+      const post = await s3Service.fetchPostById(postId);
 
       // Assert
       expect(post).toBeNull();
@@ -239,7 +239,7 @@ describe('S3Service', () => {
       );
 
       // Act
-      const post = await s3Service.fetchBlogPostById(postId);
+      const post = await s3Service.fetchPostById(postId);
 
       // Assert
       expect(post).toBeNull();

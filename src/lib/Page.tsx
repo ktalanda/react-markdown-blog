@@ -23,7 +23,7 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType }) => {
   useEffect(() => {
     const fetchBlogPosts = async (): Promise<void> => {
       try {
-        const posts = await service.fetchBlogPosts();
+        const posts = await service.fetchPosts();
         setPosts(posts);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');

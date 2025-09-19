@@ -7,8 +7,8 @@ export type ServiceType =
   | { source: 'mock' };
 
 abstract class Service {
-  abstract fetchBlogPosts(): Promise<Post[]>;
-  abstract fetchBlogPostById(postId: string): Promise<Post | null>;
+  abstract fetchPosts(): Promise<Post[]>;
+  abstract fetchPostById(postId: string): Promise<Post | null>;
 
   static create(type: ServiceType): Service {
     switch (type.source) {

@@ -9,7 +9,7 @@ class CdnService implements Service {
     this.url = url;
   }
 
-  async fetchBlogPosts(): Promise<Post[]> {
+  async fetchPosts(): Promise<Post[]> {
     const manifest = await this.fetchManifestFromServer();
     const blogFolders = manifest.filter(name => parseFolderName(name) !== null);
     const postsWithContent = await Promise.all(
@@ -19,7 +19,7 @@ class CdnService implements Service {
       .sort((a, b) => b.date.getTime() - a.date.getTime());
   }
 
-  async fetchBlogPostById(postId: string): Promise<Post | null> {
+  async fetchPostById(postId: string): Promise<Post | null> {
     const manifest = await this.fetchManifestFromServer();
     const folderName = manifest.find(name => name === postId);
     return await this.fetchPostByFolderName(folderName || '');
