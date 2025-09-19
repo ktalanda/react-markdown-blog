@@ -26,7 +26,7 @@
     "react-dom": "^19.1.1",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.9.1",
-    "react-syntax-highlighter": "^5.8.0",
+    "react-syntax-highlighter": "^15.6.6",
     "react-wavecoder-components": "^0.0.10",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1"
