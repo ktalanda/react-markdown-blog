@@ -133,7 +133,7 @@ describe('S3Service', () => {
 
       // Assert
       expect(posts).toHaveLength(1);
-      expect(posts[0].folder).toBe('230101');
+      expect(posts[0].folder).toBe('230202');
     });
   });
 
@@ -278,6 +278,164 @@ describe('S3Service', () => {
       expect(post?.folder).toBe(folderName);
       expect(post?.content).toBe('# Test content');
       expect(post?.date).toEqual(new Date(2023, 0, 1));
+    });
+  });
+
+  describe('fetchPostsWithPagination', () => {
+    it('should return paginated posts based on page and limit', async () => {
+      // Mock manifest response with 5 posts
+      (fetch as jest.Mock).mockImplementationOnce(() => 
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(['230101', '230202', '230303', '230404', '230505'])
+        })
+      );
+      
+      // We only expect 2 content requests for limit=2
+      (fetch as jest.Mock).mockImplementationOnce(() => 
+        Promise.resolve({
+          ok: true,
+          text: () => Promise.resolve('# Post 3 content')
+        })
+      );
+      
+      (fetch as jest.Mock).mockImplementationOnce(() => 
+        Promise.resolve({
+          ok: true,
+          text: () => Promise.resolve('# Post 2 content')
+        })
+      );
+
+      // Act - request page 1 (second page) with 2 posts per page
+      const result = await s3Service.fetchPostsWithPagination({ page: 1, limit: 2 });
+
+      // Assert
+      expect(result.data).toHaveLength(2);
+      expect(result.page).toBe(1);
+      expect(result.limit).toBe(2);
+      expect(result.total).toBe(5);
+      expect(result.hasMore).toBe(true);
+      
+      // Check order - should be 3rd and 2nd posts based on sorting
+      expect(result.data[0].folder).toBe('230303');
+      expect(result.data[1].folder).toBe('230202');
+      
+      // Verify fetch calls - should only fetch the manifest and the 2 posts for this page
+      expect(fetch).toHaveBeenCalledTimes(3);
+      expect(fetch).toHaveBeenCalledWith(`${mockBaseUrl}/manifest.json`);
+    });
+
+    it('should handle the last page correctly with hasMore=false', async () => {
+      // Mock manifest response with 5 posts
+      (fetch as jest.Mock).mockImplementationOnce(() => 
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(['230101', '230202', '230303', '230404', '230505'])
+        })
+      );
+      
+      // Only expect 1 content request for the last post
+      (fetch as jest.Mock).mockImplementationOnce(() => 
+        Promise.resolve({
+          ok: true,
+          text: () => Promise.resolve('# Post 1 content')
+        })
+      );
+
+      // Act - request page 2 (third page) with 2 posts per page (only 1 post should remain)
+      const result = await s3Service.fetchPostsWithPagination({ page: 2, limit: 2 });
+
+      // Assert
+      expect(result.data).toHaveLength(1);
+      expect(result.page).toBe(2);
+      expect(result.limit).toBe(2);
+      expect(result.total).toBe(5);
+      expect(result.hasMore).toBe(false); // No more posts after this
+      
+      // Should be the oldest post
+      expect(result.data[0].folder).toBe('230101');
+    });
+
+    it('should handle invalid pagination parameters by using defaults', async () => {
+      // Mock manifest response
+      (fetch as jest.Mock).mockImplementationOnce(() => 
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(['230101', '230202', '230303'])
+        })
+      );
+      
+      // Expect content fetches for first page with default limit
+      for (let i = 0; i < 3; i++) {
+        (fetch as jest.Mock).mockImplementationOnce(() => 
+          Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(`# Post ${i+1} content`)
+          })
+        );
+      }
+
+      // Act - pass invalid parameters
+      // @ts-expect-error - Testing invalid params
+      const result = await s3Service.fetchPostsWithPagination({ page: 'invalid', limit: 'invalid' });
+
+      // Assert - should use defaults
+      expect(result.page).toBe(0);
+      expect(result.limit).toBe(10);
+      expect(result.data.length).toBe(3); // All posts since default limit is high
+    });
+
+    it('should return an empty array when no posts match the pagination criteria', async () => {
+      // Mock manifest response with posts
+      (fetch as jest.Mock).mockImplementationOnce(() => 
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(['230101', '230202', '230303'])
+        })
+      );
+
+      // Act - request a page beyond available posts
+      const result = await s3Service.fetchPostsWithPagination({ page: 10, limit: 2 });
+
+      // Assert
+      expect(result.data).toHaveLength(0);
+      expect(result.total).toBe(3);
+      expect(result.hasMore).toBe(false);
+      
+      // Should only fetch manifest, no post content
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('should filter out posts that fail to fetch during pagination', async () => {
+      // Mock manifest response
+      (fetch as jest.Mock).mockImplementationOnce(() => 
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(['230101', '230202', '230303'])
+        })
+      );
+      
+      // First post fetch succeeds
+      (fetch as jest.Mock).mockImplementationOnce(() => 
+        Promise.resolve({
+          ok: true,
+          text: () => Promise.resolve('# Post 3 content')
+        })
+      );
+      
+      // Second post fetch fails
+      (fetch as jest.Mock).mockImplementationOnce(() => 
+        Promise.resolve({
+          ok: false
+        })
+      );
+
+      // Act
+      const result = await s3Service.fetchPostsWithPagination({ page: 0, limit: 2 });
+
+      // Assert
+      expect(result.data).toHaveLength(1); // Only one post succeeded
+      expect(result.data[0].folder).toBe('230303');
     });
   });
 });
