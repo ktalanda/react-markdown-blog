@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { Alert, Box, Button, CircularProgress } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import Text from '@mui/material/Typography';
@@ -12,9 +12,7 @@ import Service, { type PaginationOptions, type PaginatedResult } from './service
 
 import './Page.css';
 
-const POSTS_PER_PAGE = 5;
-
-const Page: React.FC<BlogProps> = ({ footerName, serviceType }) => {
+const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }) => {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -31,6 +29,8 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType }) => {
 
   const service: Service = useMemo(() => Service.create(serviceType), [serviceType]);
   const navigate = useNavigate();
+  const lastPostRef = useRef<HTMLDivElement | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   const fetchPosts = useCallback(async (page: number, isInitialLoad = false): Promise<void> => {
     if (isInitialLoad) setLoading(true);
@@ -39,7 +39,7 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType }) => {
     try {
       const paginationOptions: PaginationOptions = {
         page,
-        limit: POSTS_PER_PAGE
+        limit: postsPerPage
       };
       const result: PaginatedResult<Post> = await service.fetchPostsWithPagination(paginationOptions);
 
@@ -58,13 +58,50 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType }) => {
       if (isInitialLoad) setLoading(false);
       else setLoadingMore(false);
     }
-  }, [service]);
+  }, [service, postsPerPage]);
 
-  useEffect(() => void fetchPosts(0, true), [service, fetchPosts]);
-  const handleLoadMore = (): void => {
-    if (loadingMore || !pagination.hasMore) return;
-    void fetchPosts(pagination.page + 1);
-  };
+  const setupInfiniteScroll = useCallback(
+    (onIntersect: () => void) => 
+      (shouldObserve = true) : (() => void) | undefined => {
+        if (!shouldObserve) return;
+
+        if (observerRef.current) observerRef.current.disconnect();
+
+        observerRef.current = new IntersectionObserver(
+          (entries) => {
+            const [entry] = entries;
+            if (entry.isIntersecting) {
+              onIntersect();
+            }
+          },
+          {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1,
+          }
+        );
+
+        const currentLastPost = lastPostRef.current;
+        if (currentLastPost) observerRef.current.observe(currentLastPost);
+        
+        return () : void => {
+          if (observerRef.current) observerRef.current.disconnect();
+        };
+      },
+    []
+  );
+
+  useEffect(() => void fetchPosts(0, true), [fetchPosts]);
+  
+  useEffect(() => {
+    const loadNextPage = (): void => {
+      if (!loadingMore && pagination.hasMore) {
+        void fetchPosts(pagination.page + 1);
+      }
+    };
+    return setupInfiniteScroll(loadNextPage)(!loading && !loadingMore && pagination.hasMore);
+  }, [setupInfiniteScroll, fetchPosts, pagination, loading, loadingMore, posts]);
+
   const handleBackClick = (): void => void navigate('/blog');
 
   if (loading) {
@@ -98,26 +135,18 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType }) => {
         <Text variant="body1">No blog posts found.</Text>
       ) : (
         <>
-          {posts.map((post) => (
-            <PostCard 
-              key={post.folder} 
-              post={post} 
-            />
+          {posts.map((post, index) => (
+            <div 
+              key={post.folder}
+              ref={index === posts.length - 1 ? lastPostRef : null}
+            >
+              <PostCard post={post} />
+            </div>
           ))}
-
-          {pagination.hasMore && (
+          
+          {loadingMore && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
-              <Button 
-                variant="contained" 
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-              >
-                {loadingMore ? (
-                  <CircularProgress size={24} color="inherit" />
-                ) : (
-                  `Load More (${posts.length} of ${pagination.total})`
-                )}
-              </Button>
+              <CircularProgress size={24} />
             </Box>
           )}
         </>

@@ -9,6 +9,7 @@ import type { ServiceType } from './services/Service';
 export interface BlogProps {
   footerName: string;
   serviceType: ServiceType;
+  postsPerPage?: number;
   theme?: Theme;
 }
 
