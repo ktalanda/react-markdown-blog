@@ -1,5 +1,5 @@
 import Post from '../Post';
-import Service from './Service';
+import Service, { type PaginationOptions, type PaginatedResult } from './Service';
 import parseFolderName from './parseFolderName';
 
 class CdnService implements Service {
@@ -39,6 +39,24 @@ class CdnService implements Service {
       content: content,
       folder: folderName
     });
+  }
+
+  async fetchPostsWithPagination(options: PaginationOptions): Promise<PaginatedResult<Post>> {
+    const page = typeof options.page === 'number' ? options.page : 0;
+    const limit = typeof options.limit === 'number' ? options.limit : 10;
+    const allPosts = await this.fetchPosts();
+
+    const startIndex = page * limit;
+    const endIndex = startIndex + limit;
+    const paginatedPosts = allPosts.slice(startIndex, endIndex);
+
+    return {
+      data: paginatedPosts,
+      total: allPosts.length,
+      page: page,
+      limit: limit,
+      hasMore: endIndex < allPosts.length
+    } as PaginatedResult<Post>;
   }
 
   private async fetchManifestFromServer(): Promise<string[]> {
