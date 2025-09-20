@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Box, Button, CircularProgress } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import Text from '@mui/material/Typography';
@@ -32,63 +32,40 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType }) => {
   const service: Service = useMemo(() => Service.create(serviceType), [serviceType]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchBlogPosts = async (): Promise<void> => {
-      try {
-        setLoading(true);
-        const paginationOptions: PaginationOptions = {
-          page: 0,
-          limit: POSTS_PER_PAGE
-        };
-
-        const result: PaginatedResult<Post> = await service.fetchPostsWithPagination(paginationOptions);
-
-        setPosts(result.data);
-        setPagination({
-          page: result.page,
-          hasMore: result.hasMore,
-          total: result.total
-        });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
-    void fetchBlogPosts();
-  }, [service]);
-
-  const handleLoadMore = async (): Promise<void> => {
-    if (loadingMore || !pagination.hasMore) return;
-    
+  const fetchPosts = useCallback(async (page: number, isInitialLoad = false): Promise<void> => {
+    if (isInitialLoad) setLoading(true);
+    else setLoadingMore(true);
+  
     try {
-      setLoadingMore(true);
-      const nextPage = pagination.page + 1;
-      
       const paginationOptions: PaginationOptions = {
-        page: nextPage,
+        page,
         limit: POSTS_PER_PAGE
       };
-      
-      const result = await service.fetchPostsWithPagination(paginationOptions);
-      
-      setPosts(prevPosts => [...prevPosts, ...result.data]);
+      const result: PaginatedResult<Post> = await service.fetchPostsWithPagination(paginationOptions);
+
+      if (isInitialLoad) setPosts(result.data);
+      else setPosts(prevPosts => [...prevPosts, ...result.data]);
+
       setPagination({
-        page: nextPage,
+        page,
         hasMore: result.hasMore,
         total: result.total
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred loading more posts');
+      setError(err instanceof Error ? err.message : 
+        `An error occurred ${isInitialLoad ? 'loading' : 'loading more'} posts`);
     } finally {
-      setLoadingMore(false);
+      if (isInitialLoad) setLoading(false);
+      else setLoadingMore(false);
     }
-  };
+  }, [service]);
 
-  const handleBackClick = (): void => {
-    void navigate('/blog');
+  useEffect(() => void fetchPosts(0, true), [service, fetchPosts]);
+  const handleLoadMore = (): void => {
+    if (loadingMore || !pagination.hasMore) return;
+    void fetchPosts(pagination.page + 1);
   };
-
+  const handleBackClick = (): void => void navigate('/blog');
 
   if (loading) {
     return (

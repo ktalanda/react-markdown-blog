@@ -25,6 +25,42 @@ class CdnService implements Service {
     return await this.fetchPostByFolderName(folderName || '');
   }
 
+  async fetchPostsWithPagination(options: PaginationOptions): Promise<PaginatedResult<Post>> {
+    const page = typeof options.page === 'number' ? options.page : 0;
+    const limit = typeof options.limit === 'number' ? options.limit : 10;
+
+    const manifest = await this.fetchManifestFromServer();
+    const total = manifest.length;
+    const startIndex = page * limit;
+    const endIndex = Math.min(startIndex + limit, total);
+    const pageFolders = manifest.slice(startIndex, endIndex); 
+    const pagePostsPromises = pageFolders.map(
+      folderName => this.fetchPostByFolderName(folderName)
+    );
+    const pagePosts = (await Promise.all(pagePostsPromises))
+      .filter((post): post is Post => post !== null);
+
+    return {
+      data: pagePosts,
+      total,
+      page,
+      limit,
+      hasMore: endIndex < total
+    };
+  }
+
+  private async fetchManifestFromServer(): Promise<string[]> {
+    const manifestResponse = await fetch(`${this.url}/manifest.json`);
+    const manifest = await manifestResponse.json() as string[];
+    return manifest
+      .filter(name => parseFolderName(name) !== null)
+      .sort((a, b) => {
+        const dateA = parseFolderName(a)?.date.getTime() || 0;
+        const dateB = parseFolderName(b)?.date.getTime() || 0;
+        return dateB - dateA;
+      });
+  }
+
   private async fetchPostByFolderName(folderName: string): Promise<Post | null> {
     if (!folderName) return null;
     const contentResponse = await fetch(`${this.url}/${folderName}/content.md`);
@@ -39,29 +75,6 @@ class CdnService implements Service {
       content: content,
       folder: folderName
     });
-  }
-
-  async fetchPostsWithPagination(options: PaginationOptions): Promise<PaginatedResult<Post>> {
-    const page = typeof options.page === 'number' ? options.page : 0;
-    const limit = typeof options.limit === 'number' ? options.limit : 10;
-    const allPosts = await this.fetchPosts();
-
-    const startIndex = page * limit;
-    const endIndex = startIndex + limit;
-    const paginatedPosts = allPosts.slice(startIndex, endIndex);
-
-    return {
-      data: paginatedPosts,
-      total: allPosts.length,
-      page: page,
-      limit: limit,
-      hasMore: endIndex < allPosts.length
-    } as PaginatedResult<Post>;
-  }
-
-  private async fetchManifestFromServer(): Promise<string[]> {
-    const manifestResponse = await fetch(`${this.url}/manifest.json`);
-    return await manifestResponse.json() as string[];
   }
 }
 

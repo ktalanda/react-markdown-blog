@@ -18,7 +18,7 @@ function App(): JSX.Element {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/blog/*" element={<Blog serviceType={{ source: 'mock' } as ServiceType} footerName="Sample Blog" />} />
+        <Route path="/blog/*" element={<Blog serviceType={{ source: 'cdn', url: 'https://wavecoder.com.au/blog' } as ServiceType} footerName="Sample Blog" />} />
       </Routes>
     </BrowserRouter>
   );
