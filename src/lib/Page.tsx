@@ -102,7 +102,7 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
     return setupInfiniteScroll(loadNextPage)(!loading && !loadingMore && pagination.hasMore);
   }, [setupInfiniteScroll, fetchPosts, pagination, loading, loadingMore, posts]);
 
-  const handleBackClick = (): void => void navigate('/blog');
+  const handleBackClick = (): void => void navigate('/');
 
   if (loading) {
     return (
