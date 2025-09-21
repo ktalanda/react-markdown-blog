@@ -73,7 +73,8 @@ class CdnService implements Service {
       name: folderName,
       date: parsed.date,
       content: content,
-      folder: folderName
+      folder: folderName,
+      tags:[]
     });
   }
 }

@@ -18,7 +18,8 @@ const generateSamplePosts = (): Post[] => {
         content: `# Post ${i}\n\nThis is the content of post ${i}.\nIt supports **Markdown** formatting!\n\n${
           i % 3 === 0 ? '## Code Example\n\n```js\nconsole.log("Hello from post ' + i + '!");\n```' : ''
         }`,
-        folder: `post-${i}`
+        folder: `post-${i}`,
+        tags: i %  3 === 0 ? ['code'] : i % 2 === 0 ? ['surfing', 'other'] : []
       })
     );
   }

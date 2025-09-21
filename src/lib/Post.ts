@@ -3,12 +3,14 @@ export class Post {
   readonly date: Date;
   readonly content: string;
   readonly folder: string;
+  readonly tags: string[];
 
   constructor(data: {
     name: string;
     date: Date;
     content: string;
     folder: string;
+    tags: string[];
   }) {
     if (!data.name?.trim()) throw new Error('Post name is required');
     if (!data.content?.trim()) throw new Error('Post content is required');
@@ -21,6 +23,7 @@ export class Post {
     this.date = new Date(data.date);
     this.content = data.content;
     this.folder = data.folder;
+    this.tags = data.tags;
   }
 
   getPreview(maxLength: number = 300): string {
