@@ -1,5 +1,5 @@
 import Post from '../Post';
-import Service, { type PaginationOptions, type PaginatedResult } from './Service';
+import Service from './Service';
 
 // Generate 15 sample posts (5 per page for 3 pages)
 const generateSamplePosts = (): Post[] => {
@@ -29,40 +29,14 @@ const generateSamplePosts = (): Post[] => {
 
 const samplePosts = generateSamplePosts();
 
-class MockService implements Service {
-  async fetchPosts(): Promise<Post[]> {
-    // Simulate network delay of 2 seconds
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    return samplePosts;
+class MockService extends Service {
+  fetchManifestFromServer(): Promise<string[]> {
+    return Promise.resolve(samplePosts.map(post => post.folder));
   }
 
-  async fetchPostById(postId: string): Promise<Post | null> {
-    // Simulate network delay of 2 seconds
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    const post = samplePosts.find(post => post.folder === postId);
-    return post || null;
-  }
-
-  async fetchPostsWithPagination(options: PaginationOptions): Promise<PaginatedResult<Post>> {
-    // Simulate network delay of 1 second
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const { page, limit } = options;
-    
-    // Calculate pagination indices
-    const startIndex = page * limit;
-    const endIndex = startIndex + limit;
-    
-    // Get posts for the current page
-    const paginatedPosts = samplePosts.slice(startIndex, endIndex);
-    
-    return {
-      data: paginatedPosts,
-      total: samplePosts.length,
-      page,
-      limit,
-      hasMore: endIndex < samplePosts.length
-    };
+  async fetchPostByFolderName(folderName: string): Promise<Post | null> {
+    const post = samplePosts.find(post => post.folder === folderName);
+    return Promise.resolve(post || null);
   }
 }
 

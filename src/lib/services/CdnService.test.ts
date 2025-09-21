@@ -249,7 +249,6 @@ describe('S3Service', () => {
   describe('fetchPostByFolderName', () => {
     it('should return null for empty folder name', async () => {
       // Act
-      // @ts-expect-error - Testing private method
       const post = await s3Service.fetchPostByFolderName('');
 
       // Assert
@@ -269,7 +268,6 @@ describe('S3Service', () => {
       );
 
       // Act
-      // @ts-expect-error - Testing private method 
       const post = await s3Service.fetchPostByFolderName(folderName);
 
       // Assert

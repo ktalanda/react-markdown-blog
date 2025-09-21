@@ -11,6 +11,7 @@ import PostCard from './PostCard';
 import Service, { type PaginationOptions, type PaginatedResult } from './services/Service';
 
 import './Page.css';
+import createService from './services/createService';
 
 const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }) => {
   const [loading, setLoading] = useState(true);
@@ -27,7 +28,7 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
     total: 0
   });
 
-  const service: Service = useMemo(() => Service.create(serviceType), [serviceType]);
+  const service: Service = useMemo(() => createService(serviceType), [serviceType]);
   const navigate = useNavigate();
   const lastPostRef = useRef<HTMLDivElement | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);

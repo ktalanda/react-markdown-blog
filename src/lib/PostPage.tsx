@@ -13,6 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Service from './services/Service';
 
 import './PostPage.css';
+import createService from './services/createService';
 
 const PostPage: React.FC<BlogProps> = ({ footerName, serviceType }) => {
   const { postId } = useParams<{ postId: string }>();
@@ -20,7 +21,7 @@ const PostPage: React.FC<BlogProps> = ({ footerName, serviceType }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const service: Service = useMemo(() => Service.create(serviceType), [serviceType]);
+  const service: Service = useMemo(() => createService(serviceType), [serviceType]);
   const navigate = useNavigate();
 
   const handleBackClick = (): void => {
