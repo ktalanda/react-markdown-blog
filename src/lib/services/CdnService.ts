@@ -1,5 +1,5 @@
 import Post from '../Post';
-import Service from './Service';
+import Service, { type ManifestItem } from './Service';
 import parseFolderName from './parseFolderName';
 
 class CdnService extends Service {
@@ -10,7 +10,7 @@ class CdnService extends Service {
     this.url = url;
   }
 
-  async fetchManifestFromServer(): Promise<string[]> {
+  async fetchManifestFromServer(): Promise<ManifestItem[]> {
     const manifestResponse = await fetch(`${this.url}/manifest.json`);
     const manifest = await manifestResponse.json() as string[];
     return manifest
@@ -19,7 +19,11 @@ class CdnService extends Service {
         const dateA = parseFolderName(a)?.date.getTime() || 0;
         const dateB = parseFolderName(b)?.date.getTime() || 0;
         return dateB - dateA;
-      });
+      })
+      .map(item => ({
+        folder: item,
+        tags: []
+      }));
   }
 
   async fetchPostByFolderName(folderName: string): Promise<Post | null> {

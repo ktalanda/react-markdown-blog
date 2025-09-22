@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { Alert, Box, Button, CircularProgress } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Chip, Typography } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import Text from '@mui/material/Typography';
 import { Footer } from 'react-wavecoder-components';
@@ -27,22 +27,35 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
     hasMore: false,
     total: 0
   });
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const service: Service = useMemo(() => createService(serviceType), [serviceType]);
   const navigate = useNavigate();
   const lastPostRef = useRef<HTMLDivElement | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
+  const fetchAvailableTags = useCallback(async (): Promise<void> => {
+    try {
+      const tags = await service.getAllTags();
+      setAvailableTags(tags);
+    } catch (error) {
+      console.error('Error fetching tags:', error);
+    }
+  }, [service]);
+
   const fetchPosts = useCallback(async (page: number, isInitialLoad = false): Promise<void> => {
     if (isInitialLoad) setLoading(true);
     else setLoadingMore(true);
-  
+
     try {
       const paginationOptions: PaginationOptions = {
         page,
         limit: postsPerPage
       };
-      const result: PaginatedResult<Post> = await service.fetchPostsWithPagination(paginationOptions);
+      const result: PaginatedResult<Post> = await service.fetchPostsWithPagination(
+        paginationOptions,
+      );
 
       if (isInitialLoad) setPosts(result.data);
       else setPosts(prevPosts => [...prevPosts, ...result.data]);
@@ -84,7 +97,7 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
 
         const currentLastPost = lastPostRef.current;
         if (currentLastPost) observerRef.current.observe(currentLastPost);
-        
+
         return () : void => {
           if (observerRef.current) observerRef.current.disconnect();
         };
@@ -92,7 +105,10 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
     []
   );
 
-  useEffect(() => void fetchPosts(0, true), [fetchPosts]);
+  useEffect(() => {
+    void fetchAvailableTags();
+    void fetchPosts(0, true);
+  }, [fetchAvailableTags, fetchPosts]);
   
   useEffect(() => {
     const loadNextPage = (): void => {
@@ -104,6 +120,19 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
   }, [setupInfiniteScroll, fetchPosts, pagination, loading, loadingMore, posts]);
 
   const handleBackClick = (): void => void navigate('/');
+
+  const handleTagClick = (tag: string): void => {
+    setSelectedTags(prevTags => {
+      const isSelected = prevTags.includes(tag);
+      const newTags = isSelected
+        ? prevTags.filter(t => t !== tag)
+        : [...prevTags, tag];
+      setTimeout(() => {
+        void fetchPosts(0, true);
+      }, 0);
+      return newTags;
+    });
+  };
 
   if (loading) {
     return (
@@ -123,14 +152,58 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
 
   return (
     <Box className="blog-container">
-      <Button 
-        startIcon={<ArrowBack />} 
-        onClick={handleBackClick}
-        className="back-button"
-        sx={{ mb: 2 }}
-      >
-        Back to Home
-      </Button>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        mb: 2
+      }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={handleBackClick}
+          className="back-button"
+        >
+          Back
+        </Button>
+
+        <Box sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 1,
+          justifyContent: 'flex-end',
+          maxWidth: { xs: '100%', sm: '70%' }
+        }}>
+          {availableTags.length > 0 && (
+            <>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ alignSelf: 'center', mr: 1 }}
+              >
+                Filter by:
+              </Typography>
+
+              {availableTags.map(tag => (
+                <Chip
+                  key={tag}
+                  label={tag}
+                  size="small"
+                  color={selectedTags.includes(tag) ? 'primary' : 'default'}
+                  onClick={() => handleTagClick(tag)}
+                  sx={{
+                    '&:hover': {
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                      transform: 'translateY(-1px)'
+                    },
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                />
+              ))}
+            </>
+          )}
+        </Box>
+      </Box>
 
       {posts.length === 0 && !loading ? (
         <Text variant="body1">No blog posts found.</Text>

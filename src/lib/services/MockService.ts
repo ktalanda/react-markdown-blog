@@ -1,5 +1,5 @@
 import Post from '../Post';
-import Service from './Service';
+import Service, { type ManifestItem } from './Service';
 
 // Generate 15 sample posts (5 per page for 3 pages)
 const generateSamplePosts = (): Post[] => {
@@ -30,8 +30,11 @@ const generateSamplePosts = (): Post[] => {
 const samplePosts = generateSamplePosts();
 
 class MockService extends Service {
-  fetchManifestFromServer(): Promise<string[]> {
-    return Promise.resolve(samplePosts.map(post => post.folder));
+  fetchManifestFromServer(): Promise<ManifestItem[]> {
+    return Promise.resolve(samplePosts.map(post => ({
+      folder: post.folder,
+      tags: post.tags
+    })));
   }
 
   async fetchPostByFolderName(folderName: string): Promise<Post | null> {
