@@ -6,8 +6,8 @@ import rehypeRaw from 'rehype-raw';
 import { useNavigate } from 'react-router-dom';
 import './PostCard.css';
 
-import Post from './Post';
-import CodeComponent from './CodeComponent';
+import Post from '../../Post';
+import CodeComponent from '../../components/CodeComponent';
 
 const PostCard: React.FC<{ post: Post }> = ({ post }) => {
   const navigate = useNavigate();

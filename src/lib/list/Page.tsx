@@ -1,18 +1,20 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { Alert, Box, Button, CircularProgress } from '@mui/material';
+import { Box, Button, CircularProgress } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import Text from '@mui/material/Typography';
 import { Footer } from 'react-wavecoder-components';
 import { useNavigate } from 'react-router-dom';
 
-import type { BlogProps } from './Blog';
-import type Post from './Post';
-import PostCard from './PostCard';
-import Service, { type PaginationOptions, type PaginatedResult } from './services/Service';
+import type { BlogProps } from '../Blog';
+import type Post from '../Post';
+import PostCard from './card/PostCard';
+import Service, { type PaginationOptions, type PaginatedResult } from '../services/Service';
 import TagFilter from './TagFilter';
 
 import './Page.css';
-import createService from './services/createService';
+import createService from '../services/createService';
+import LoadingPage from './LoadingPage';
+import ErrorPage from './ErrorPage';
 
 const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }) => {
   const [loading, setLoading] = useState(true);
@@ -28,24 +30,12 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
     hasMore: false,
     total: 0
   });
-  const [availableTags, setAvailableTags] = useState<string[]>([]);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
   const service: Service = useMemo(() => createService(serviceType), [serviceType]);
   const navigate = useNavigate();
   const lastPostRef = useRef<HTMLDivElement | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  const fetchAvailableTags = useCallback(async (): Promise<void> => {
-    try {
-      const tags = await service.getAllTags();
-      setAvailableTags(tags);
-    } catch (error) {
-      console.error('Error fetching tags:', error);
-    }
-  }, [service]);
-
-  const fetchPosts = useCallback(async (page: number, isInitialLoad = false): Promise<void> => {
+  const fetchPosts = useCallback(async (page: number, isInitialLoad = false, selectedTags: string[] = []): Promise<void> => {
     if (isInitialLoad) setLoading(true);
     else setLoadingMore(true);
 
@@ -74,7 +64,7 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
       if (isInitialLoad) setLoading(false);
       else setLoadingMore(false);
     }
-  }, [service, postsPerPage, selectedTags]);
+  }, [service, postsPerPage]);
 
   const setupInfiniteScroll = useCallback(
     (onIntersect: () => void) => 
@@ -108,9 +98,8 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
   );
 
   useEffect(() => {
-    void fetchAvailableTags();
     void fetchPosts(0, true);
-  }, [fetchAvailableTags, fetchPosts]);
+  }, [fetchPosts]);
   
   useEffect(() => {
     const loadNextPage = (): void => {
@@ -124,26 +113,17 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
   const handleBackClick = (): void => void navigate('/');
 
   const handleTagsChange = useCallback((tags: string[]): void => {
-    setSelectedTags(tags);
-    fetchPosts(0, true).catch(err =>
+    fetchPosts(0, true, tags).catch(err =>
       console.error('Error fetching posts after tag change:', err)
     );
   }, [fetchPosts]);
 
   if (loading) {
-    return (
-      <Box className="blog-loading">
-        <CircularProgress color="primary" />
-      </Box>
-    );
+    return <LoadingPage />;
   }
 
   if (error) {
-    return (
-      <Box className="blog-error">
-        <Alert severity="error">Error loading blog posts: {error}</Alert>
-      </Box>
-    );
+    return <ErrorPage error={error} />;
   }
 
   return (
@@ -164,9 +144,8 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
         </Button>
 
         <TagFilter
-          availableTags={availableTags}
           onTagsChange={handleTagsChange}
-          initialSelectedTags={selectedTags}
+          serviceType={serviceType}
         />
       </Box>
 

@@ -1,19 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import Service, { type ServiceType } from '../services/Service';
+import createService from '../services/createService';
 import { Box, Chip, Typography } from '@mui/material';
 
 interface TagFilterProps {
-  availableTags: string[];
+  serviceType: ServiceType;
   onTagsChange: (tags: string[]) => void;
   initialSelectedTags?: string[];
 }
 
 const TagFilter: React.FC<TagFilterProps> = ({ 
-  availableTags, 
   onTagsChange,
+  serviceType,
   initialSelectedTags = []
 }) => {
+  const service: Service = useMemo(() => createService(serviceType), [serviceType]);
+
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>(initialSelectedTags);
   
+  const fetchAvailableTags = useCallback(async (): Promise<void> => {
+    try {
+      const tags = await service.getAllTags();
+      setAvailableTags(tags);
+    } catch (error) {
+      console.error('Error fetching tags:', error);
+    }
+  }, [service]);
+
   // Handle tag selection
   const handleTagClick = (tag: string): void => {
     setSelectedTags(prevTags => {
@@ -26,10 +40,13 @@ const TagFilter: React.FC<TagFilterProps> = ({
     });
   };
   
-  // Notify parent component when selected tags change
   useEffect(() => {
     onTagsChange(selectedTags);
   }, [selectedTags, onTagsChange]);
+
+  useEffect(() => {
+    void fetchAvailableTags();
+  }, [fetchAvailableTags]);
 
   if (availableTags.length === 0) {
     return null;

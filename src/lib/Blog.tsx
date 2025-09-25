@@ -1,8 +1,8 @@
 import { ThemeProvider, createTheme, type Theme } from '@mui/material/styles';
 import { Routes, Route } from 'react-router-dom';
 
-import Page from './Page';
-import PostPage from './PostPage';
+import Page from './list/Page';
+import PostPage from './post/PostPage';
 
 import type { ServiceType } from './services/Service';
 

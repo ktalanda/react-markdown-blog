@@ -3,17 +3,17 @@ import { Box, Typography, Button, Alert, CircularProgress } from '@mui/material'
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import CodeComponent from './CodeComponent';
+import CodeComponent from '../components/CodeComponent';
 import { Footer } from 'react-wavecoder-components';
 
-import type { BlogProps } from './Blog';
+import type { BlogProps } from '../Blog';
 import { useEffect, useMemo, useState } from 'react';
-import type { Post } from './Post';
+import type { Post } from '../Post';
 import { useNavigate, useParams } from 'react-router-dom';
-import Service from './services/Service';
+import Service from '../services/Service';
 
 import './PostPage.css';
-import createService from './services/createService';
+import createService from '../services/createService';
 
 const PostPage: React.FC<BlogProps> = ({ footerName, serviceType }) => {
   const { postId } = useParams<{ postId: string }>();
