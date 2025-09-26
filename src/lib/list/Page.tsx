@@ -16,7 +16,7 @@ import createService from '../services/createService';
 
 import LoadingView from './LoadingView';
 import ErrorView from './ErrorView';
-import ContentView from './ContentVIew';
+import ContentView from './ContentView';
 
 const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }) => {
   const [pageState, setPageState] = useState<PageState>({ status: 'loading' });
