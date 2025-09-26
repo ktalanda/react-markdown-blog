@@ -10,6 +10,7 @@ import type Post from '../Post';
 import PostCard from './card/PostCard';
 import Service, { type PaginationOptions, type PaginatedResult } from '../services/Service';
 import TagFilter from './TagFilter';
+import { type PageState } from './PageState';
 
 import './Page.css';
 import createService from '../services/createService';
@@ -17,27 +18,18 @@ import LoadingPage from './LoadingPage';
 import ErrorPage from './ErrorPage';
 
 const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }) => {
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState<{
-    page: number;
-    hasMore: boolean;
-    total: number;
-  }>({
-    page: 0,
-    hasMore: false,
-    total: 0
-  });
+  const [pageState, setPageState] = useState<PageState>({ status: 'loading' });
   const service: Service = useMemo(() => createService(serviceType), [serviceType]);
   const navigate = useNavigate();
   const lastPostRef = useRef<HTMLDivElement | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   const fetchPosts = useCallback(async (page: number, isInitialLoad = false, selectedTags: string[] = []): Promise<void> => {
-    if (isInitialLoad) setLoading(true);
-    else setLoadingMore(true);
+    if (isInitialLoad) {
+      setPageState({ status: 'loading' });
+    } else {
+      setPageState(prevState => ({ ...prevState, loadingMore: true }));
+    }
 
     try {
       const paginationOptions: PaginationOptions = {
@@ -49,22 +41,42 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
         selectedTags
       );
 
-      if (isInitialLoad) setPosts(result.data);
-      else setPosts(prevPosts => [...prevPosts, ...result.data]);
-
-      setPagination({
-        page,
-        hasMore: result.hasMore,
-        total: result.total
-      });
+      if (isInitialLoad) {
+        setPageState({ status: 'content', posts: result.data, pagination: {
+          page,
+          hasMore: result.hasMore,
+          total: result.total
+        }, loadingMore: false });
+        if (result.data.length === 0) {
+          setPageState({ status: 'empty' });
+        } else {
+          setPageState({ status: 'content', posts: result.data, pagination: {
+            page,
+            hasMore: result.hasMore,
+            total: result.total
+          }, loadingMore: false });
+        }
+      } else {
+        setPageState(prevState => {
+          if (prevState.status !== 'content') return prevState;
+          return ({
+            ...prevState,
+            posts: [...prevState.posts, ...result.data]
+          });
+        });
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 
-        `An error occurred ${isInitialLoad ? 'loading' : 'loading more'} posts`);
+      setPageState({ 
+        status: 'error', 
+        message: err instanceof Error ? err.message : 
+          `An error occurred ${isInitialLoad ? 'loading' : 'loading more'} posts`
+      });
     } finally {
-      if (isInitialLoad) setLoading(false);
-      else setLoadingMore(false);
+      if (!isInitialLoad) {
+        setPageState(prevState => ({ ...prevState, loadingMore: false }));
+      }
     }
-  }, [service, postsPerPage]);
+  }, [postsPerPage, service]);
 
   const setupInfiniteScroll = useCallback(
     (onIntersect: () => void) => 
@@ -102,13 +114,15 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
   }, [fetchPosts]);
   
   useEffect(() => {
+    if (pageState.status !== 'content') return;
+
     const loadNextPage = (): void => {
-      if (!loadingMore && pagination.hasMore) {
-        void fetchPosts(pagination.page + 1);
+      if (!pageState.loadingMore && pageState.pagination.hasMore) {
+        void fetchPosts(pageState.pagination.page + 1);
       }
     };
-    return setupInfiniteScroll(loadNextPage)(!loading && !loadingMore && pagination.hasMore);
-  }, [setupInfiniteScroll, fetchPosts, pagination, loading, loadingMore, posts]);
+    return setupInfiniteScroll(loadNextPage)(!pageState.loadingMore && pageState.pagination.hasMore);
+  }, [setupInfiniteScroll, fetchPosts, pageState]);
 
   const handleBackClick = (): void => void navigate('/');
 
@@ -118,61 +132,86 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
     );
   }, [fetchPosts]);
 
-  if (loading) {
+  switch (pageState.status) {
+  case 'loading':
     return <LoadingPage />;
-  }
+  
+  case 'error':
+    return <ErrorPage error={pageState.message} />;
+    
+  case 'empty':
+    return (
+      <Box className="blog-container">
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          mb: 2
+        }}>
+          <Button
+            startIcon={<ArrowBack />}
+            onClick={handleBackClick}
+            className="back-button"
+          >
+            Back
+          </Button>
 
-  if (error) {
-    return <ErrorPage error={error} />;
-  }
-
-  return (
-    <Box className="blog-container">
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        mb: 2
-      }}>
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={handleBackClick}
-          className="back-button"
-        >
-          Back
-        </Button>
-
-        <TagFilter
-          onTagsChange={handleTagsChange}
-          serviceType={serviceType}
-        />
-      </Box>
-
-      {posts.length === 0 && !loading ? (
+          <TagFilter
+            onTagsChange={handleTagsChange}
+            serviceType={serviceType}
+          />
+        </Box>
+        
         <Text variant="body1">No blog posts found.</Text>
-      ) : (
-        <>
-          {posts.map((post, index) => (
-            <div 
-              key={post.folder}
-              ref={index === posts.length - 1 ? lastPostRef : null}
-            >
-              <PostCard post={post} />
-            </div>
-          ))}
-          
-          {loadingMore && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
-              <CircularProgress size={24} />
-            </Box>
-          )}
-        </>
-      )}
+        
+        <Footer name={footerName}/>
+      </Box>
+    );
+    
+  case 'content':
+    return (
+      <Box className="blog-container">
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          mb: 2
+        }}>
+          <Button
+            startIcon={<ArrowBack />}
+            onClick={handleBackClick}
+            className="back-button"
+          >
+            Back
+          </Button>
 
-      <Footer name={footerName}/>
-    </Box>
-  );
+          <TagFilter
+            onTagsChange={handleTagsChange}
+            serviceType={serviceType}
+          />
+        </Box>
+
+        {pageState.posts.map((post, index) => (
+          <div 
+            key={post.folder}
+            ref={index === pageState.posts.length - 1 ? lastPostRef : null}
+          >
+            <PostCard post={post} />
+          </div>
+        ))}
+        
+        {pageState.loadingMore && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
+            <CircularProgress size={24} />
+          </Box>
+        )}
+        
+        <Footer name={footerName}/>
+      </Box>
+    );
+  }
 };
 
 export default Page;
