@@ -1,10 +1,10 @@
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
-const LoadingPage: React.FC = () => (
+const LoadingView: React.FC = () => (
   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
     <CircularProgress />
   </Box>
 );
 
-export default LoadingPage;
+export default LoadingView;

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { Box, Button, CircularProgress } from '@mui/material';
+import { useCallback, useEffect, useMemo, useState, useRef, type ReactNode } from 'react';
+import { Box, Button } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import Text from '@mui/material/Typography';
 import { Footer } from 'react-wavecoder-components';
@@ -7,15 +7,16 @@ import { useNavigate } from 'react-router-dom';
 
 import type { BlogProps } from '../Blog';
 import type Post from '../Post';
-import PostCard from './card/PostCard';
 import Service, { type PaginationOptions, type PaginatedResult } from '../services/Service';
 import TagFilter from './TagFilter';
 import { type PageState } from './PageState';
 
 import './Page.css';
 import createService from '../services/createService';
-import LoadingPage from './LoadingPage';
-import ErrorPage from './ErrorPage';
+
+import LoadingView from './LoadingView';
+import ErrorView from './ErrorView';
+import ContentView from './ContentVIew';
 
 const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }) => {
   const [pageState, setPageState] = useState<PageState>({ status: 'loading' });
@@ -112,7 +113,7 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
   useEffect(() => {
     void fetchPosts(0, true);
   }, [fetchPosts]);
-  
+
   useEffect(() => {
     if (pageState.status !== 'content') return;
 
@@ -127,91 +128,56 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
   const handleBackClick = (): void => void navigate('/');
 
   const handleTagsChange = useCallback((tags: string[]): void => {
-    fetchPosts(0, true, tags).catch(err =>
-      console.error('Error fetching posts after tag change:', err)
-    );
+    void fetchPosts(0, true, tags);
   }, [fetchPosts]);
 
+  let content: ReactNode;
   switch (pageState.status) {
   case 'loading':
-    return <LoadingPage />;
-  
+    content = <LoadingView />;
+    break;
   case 'error':
-    return <ErrorPage error={pageState.message} />;
-    
+    content = <ErrorView error={pageState.message} />;
+    break;
   case 'empty':
-    return (
-      <Box className="blog-container">
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          mb: 2
-        }}>
-          <Button
-            startIcon={<ArrowBack />}
-            onClick={handleBackClick}
-            className="back-button"
-          >
-            Back
-          </Button>
-
-          <TagFilter
-            onTagsChange={handleTagsChange}
-            serviceType={serviceType}
-          />
-        </Box>
-        
-        <Text variant="body1">No blog posts found.</Text>
-        
-        <Footer name={footerName}/>
-      </Box>
-    );
-    
+    content = <Text variant="body1">No blog posts found.</Text>;
+    break;
   case 'content':
-    return (
-      <Box className="blog-container">
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          mb: 2
-        }}>
-          <Button
-            startIcon={<ArrowBack />}
-            onClick={handleBackClick}
-            className="back-button"
-          >
-            Back
-          </Button>
-
-          <TagFilter
-            onTagsChange={handleTagsChange}
-            serviceType={serviceType}
-          />
-        </Box>
-
-        {pageState.posts.map((post, index) => (
-          <div 
-            key={post.folder}
-            ref={index === pageState.posts.length - 1 ? lastPostRef : null}
-          >
-            <PostCard post={post} />
-          </div>
-        ))}
-        
-        {pageState.loadingMore && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
-            <CircularProgress size={24} />
-          </Box>
-        )}
-        
-        <Footer name={footerName}/>
-      </Box>
+    content = (
+      <ContentView
+        posts={pageState.posts}
+        loadingMore={pageState.loadingMore}
+        lastPostRef={lastPostRef}
+      />
     );
+    break;
   }
+
+  return (
+    <Box className="blog-container">
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        mb: 2
+      }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={handleBackClick}
+          className="back-button"
+        >
+          Back
+        </Button>
+        <TagFilter
+          onTagsChange={handleTagsChange}
+          serviceType={serviceType}
+        />
+      </Box>
+      {content}
+      <Footer name={footerName}/>
+    </Box>
+  );
 };
 
 export default Page;
