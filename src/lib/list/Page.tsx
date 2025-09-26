@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, useRef, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Box, Button } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import Text from '@mui/material/Typography';
@@ -22,8 +22,6 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
   const [pageState, setPageState] = useState<PageState>({ status: 'loading' });
   const service: Service = useMemo(() => createService(serviceType), [serviceType]);
   const navigate = useNavigate();
-  const lastPostRef = useRef<HTMLDivElement | null>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
 
   const fetchPosts = useCallback(async (page: number, isInitialLoad = false, selectedTags: string[] = []): Promise<void> => {
     if (isInitialLoad) {
@@ -43,19 +41,19 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
       );
 
       if (isInitialLoad) {
-        setPageState({ status: 'content', posts: result.data, pagination: {
-          page,
-          hasMore: result.hasMore,
-          total: result.total
-        }, loadingMore: false });
         if (result.data.length === 0) {
           setPageState({ status: 'empty' });
         } else {
-          setPageState({ status: 'content', posts: result.data, pagination: {
-            page,
-            hasMore: result.hasMore,
-            total: result.total
-          }, loadingMore: false });
+          setPageState({
+            status: 'content',
+            posts: result.data,
+            pagination: {
+              page,
+              hasMore: result.hasMore,
+              total: result.total
+            },
+            loadingMore: false
+          });
         }
       } else {
         setPageState(prevState => {
@@ -67,7 +65,8 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
               page,
               hasMore: result.hasMore,
               total: result.total
-            }
+            },
+            loadingMore: false
           });
         });
       }
@@ -84,57 +83,21 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
     }
   }, [postsPerPage, service]);
 
-  const setupInfiniteScroll = useCallback(
-    (onIntersect: () => void) => 
-      (shouldObserve = true) : (() => void) | undefined => {
-        if (!shouldObserve) return;
-
-        if (observerRef.current) observerRef.current.disconnect();
-
-        observerRef.current = new IntersectionObserver(
-          (entries) => {
-            const [entry] = entries;
-            if (entry.isIntersecting) {
-              onIntersect();
-            }
-          },
-          {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1,
-          }
-        );
-
-        const currentLastPost = lastPostRef.current;
-        if (currentLastPost) observerRef.current.observe(currentLastPost);
-
-        return () : void => {
-          if (observerRef.current) observerRef.current.disconnect();
-        };
-      },
-    []
-  );
-
   useEffect(() => {
     void fetchPosts(0, true);
   }, [fetchPosts]);
-
-  useEffect(() => {
-    if (pageState.status !== 'content') return;
-
-    const loadNextPage = (): void => {
-      if (!pageState.loadingMore && pageState.pagination.hasMore) {
-        void fetchPosts(pageState.pagination.page + 1);
-      }
-    };
-    return setupInfiniteScroll(loadNextPage)(!pageState.loadingMore && pageState.pagination.hasMore);
-  }, [setupInfiniteScroll, fetchPosts, pageState]);
 
   const handleBackClick = (): void => void navigate('/');
 
   const handleTagsChange = useCallback((tags: string[]): void => {
     void fetchPosts(0, true, tags);
   }, [fetchPosts]);
+
+  const handleLoadMore = useCallback(() => {
+    if (pageState.status === 'content') {
+      void fetchPosts(pageState.pagination.page + 1);
+    }
+  }, [fetchPosts, pageState]);
 
   let content: ReactNode;
   switch (pageState.status) {
@@ -152,7 +115,8 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
       <ContentView
         posts={pageState.posts}
         loadingMore={pageState.loadingMore}
-        lastPostRef={lastPostRef}
+        hasMorePosts={pageState.pagination.hasMore}
+        onLoadMore={handleLoadMore}
       />
     );
     break;
