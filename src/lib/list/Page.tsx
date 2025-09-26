@@ -62,7 +62,12 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
           if (prevState.status !== 'content') return prevState;
           return ({
             ...prevState,
-            posts: [...prevState.posts, ...result.data]
+            posts: [...prevState.posts, ...result.data],
+            pagination: {
+              page,
+              hasMore: result.hasMore,
+              total: result.total
+            }
           });
         });
       }
