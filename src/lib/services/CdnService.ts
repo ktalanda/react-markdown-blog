@@ -12,7 +12,23 @@ class CdnService extends Service {
 
   async fetchManifestFromServer(): Promise<ManifestItem[]> {
     const manifestResponse = await fetch(`${this.url}/manifest.json`);
-    const manifest = await manifestResponse.json() as string[];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const rawData = await manifestResponse.json();
+    
+    if (Array.isArray(rawData) && rawData.length > 0) {
+      if (typeof rawData[0] === 'string') {
+        return this.parseLegacyManifest(rawData as string[]);
+      } else {
+        return this.parseModernManifest(rawData as Array<{folder: string; tags: string[]}>);
+      }
+    }
+    return [];
+  }
+  
+  /**
+   * @deprecated Parse legacy string[] format manifest
+   */
+  private parseLegacyManifest(manifest: string[]): ManifestItem[] {
     return manifest
       .filter(name => parseFolderName(name) !== null)
       .sort((a, b) => {
@@ -23,6 +39,20 @@ class CdnService extends Service {
       .map(item => ({
         folder: item,
         tags: []
+      }));
+  }
+  
+  private parseModernManifest(manifest: Array<{folder: string; tags: string[]}>): ManifestItem[] {
+    return manifest
+      .filter(item => parseFolderName(item.folder) !== null)
+      .sort((a, b) => {
+        const dateA = parseFolderName(a.folder)?.date.getTime() || 0;
+        const dateB = parseFolderName(b.folder)?.date.getTime() || 0;
+        return dateB - dateA;
+      })
+      .map(item => ({
+        folder: item.folder,
+        tags: item.tags || []
       }));
   }
 

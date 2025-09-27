@@ -14,6 +14,46 @@ describe('S3Service', () => {
   });
 
   describe('fetchBlogPosts', () => {
+    it('should fetch manifest with with tags', async () => {
+      // Mock manifest response
+      (fetch as jest.Mock).mockImplementationOnce(() => 
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([
+            {
+              folder: '230101',
+              tags: ['tag1', 'tag2']
+            },
+            { folder: '230202', tags: ['tag3'] },
+            { folder: '230303', tags: ['tag4'] }
+          ])
+        })
+      );
+
+      const manifest = await s3Service.fetchManifestFromServer();
+      expect(manifest).toEqual([
+        { folder: '230303', tags: ['tag4'] },
+        { folder: '230202', tags: ['tag3'] },
+        { folder: '230101', tags: ['tag1', 'tag2'] }
+        
+      ]);
+    });
+    it('should fetch manifest for simple list of folders without tags', async () => {
+      // Mock manifest response
+      (fetch as jest.Mock).mockImplementationOnce(() => 
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(['230101', '230202', '230303'])
+        })
+      );
+
+      const manifest = await s3Service.fetchManifestFromServer();
+      expect(manifest).toEqual([
+        { folder: '230303', tags: [] },
+        { folder: '230202', tags: [] },
+        { folder: '230101', tags: [] }
+      ]);
+    });
     it('should return sorted blog posts when manifest and content are successfully fetched', async () => {
       // Mock manifest response
       (fetch as jest.Mock).mockImplementationOnce(() => 
