@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { Box, CircularProgress } from '@mui/material';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import PostCard from './card/PostCard';
 import type Post from '../Post';
 
@@ -52,6 +52,14 @@ const ContentView: React.FC<ContentViewProps> = ({
   useEffect(() => {
     return setupInfiniteScroll(!loadingMore && hasMorePosts);
   }, [setupInfiniteScroll, loadingMore, hasMorePosts, posts.length]);
+
+  if (posts.length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', my: 4 }}>
+        <Typography variant="body1">No blog posts found.</Typography>
+      </Box>
+    );
+  }
 
   return (
     <>

@@ -7,9 +7,7 @@ interface Pagination {
 }
 
 export type PageState = 
-  | { status: 'loading' }
   | { status: 'error'; message: string }
-  | { status: 'empty' }
   | { 
       status: 'content'; 
       posts: Post[]; 
