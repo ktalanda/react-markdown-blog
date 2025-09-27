@@ -14,7 +14,7 @@ import './Page.css';
 import createService from '../services/createService';
 
 import ErrorView from './ErrorView';
-import ContentView from './ContentView';
+import ContentView from './ContentView_tmp';
 
 const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }) => {
   const [pageState, setPageState] = useState<PageState>({
