@@ -12,8 +12,7 @@ class CdnService extends Service {
 
   async fetchManifestFromServer(): Promise<ManifestItem[]> {
     const manifestResponse = await fetch(`${this.url}/manifest.json`);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const rawData = await manifestResponse.json();
+    const rawData = await manifestResponse.json() as string[] | Array<{folder: string; tags: string[]}>;
     
     if (Array.isArray(rawData) && rawData.length > 0) {
       if (typeof rawData[0] === 'string') {
