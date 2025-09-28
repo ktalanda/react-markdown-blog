@@ -55,20 +55,21 @@ class CdnService extends Service {
       }));
   }
 
-  async fetchPostByFolderName(folderName: string): Promise<Post | null> {
-    if (!folderName) return null;
-    const contentResponse = await fetch(`${this.url}/${folderName}/content.md`);
+  async fetchPostByFolderName(item: ManifestItem): Promise<Post | null> {
+    if (!item) return null;
+    if (!item.folder) return null;
+    const contentResponse = await fetch(`${this.url}/${item.folder}/content.md`);
     if (!contentResponse.ok) return null;
 
-    const parsed = parseFolderName(folderName);
+    const parsed = parseFolderName(item.folder);
     const content = await contentResponse.text();
     if (!parsed) return null;
     return new Post({
-      name: folderName,
+      name: item.folder,
       date: parsed.date,
       content: content,
-      folder: folderName,
-      tags:[]
+      folder: item.folder,
+      tags: item.tags || []
     });
   }
 }

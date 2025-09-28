@@ -289,7 +289,7 @@ describe('S3Service', () => {
   describe('fetchPostByFolderName', () => {
     it('should return null for empty folder name', async () => {
       // Act
-      const post = await s3Service.fetchPostByFolderName('');
+      const post = await s3Service.fetchPostByFolderName({ folder: '', tags: [] });
 
       // Assert
       expect(post).toBeNull();
@@ -308,7 +308,7 @@ describe('S3Service', () => {
       );
 
       // Act
-      const post = await s3Service.fetchPostByFolderName(folderName);
+      const post = await s3Service.fetchPostByFolderName({ folder: folderName, tags: ['test'] });
 
       // Assert
       expect(post).toBeInstanceOf(Post);
@@ -316,6 +316,7 @@ describe('S3Service', () => {
       expect(post?.folder).toBe(folderName);
       expect(post?.content).toBe('# Test content');
       expect(post?.date).toEqual(new Date(2023, 0, 1));
+      expect(post?.tags).toEqual(['test']);
     });
   });
 

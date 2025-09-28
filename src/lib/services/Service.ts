@@ -28,7 +28,7 @@ abstract class Service {
     const manifest = await this.fetchManifestFromServer();
     const blogFolders = manifest.filter(item => parseFolderName(item.folder) !== null);
     const postsWithContent = await Promise.all(
-      blogFolders.map(async (item) => await this.fetchPostByFolderName(item.folder))
+      blogFolders.map(async (item) => await this.fetchPostByFolderName(item))
     );
     return postsWithContent.filter((post): post is Post => post !== null)
       .sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -37,7 +37,8 @@ abstract class Service {
   async fetchPostById(postId: string): Promise<Post | null> {
     const manifest = await this.fetchManifestFromServer();
     const item = manifest.find(item => item.folder === postId);
-    return await this.fetchPostByFolderName(item?.folder || '');
+    if (!item) return null;
+    return await this.fetchPostByFolderName(item);
   }
 
   async fetchPostsWithPagination(options: PaginationOptions, tags: string[] = []): Promise<PaginatedResult<Post>> {
@@ -53,7 +54,7 @@ abstract class Service {
     const endIndex = Math.min(startIndex + limit, total);
     const pageFolders = filteredManifest.slice(startIndex, endIndex);
     const pagePostsPromises = pageFolders.map(
-      item => this.fetchPostByFolderName(item.folder)
+      item => this.fetchPostByFolderName(item)
     );
     const pagePosts = (await Promise.all(pagePostsPromises))
       .filter((post): post is Post => post !== null);
@@ -74,7 +75,7 @@ abstract class Service {
   }
 
   abstract fetchManifestFromServer(): Promise<ManifestItem[]>;
-  abstract fetchPostByFolderName(folderName: string): Promise<Post | null>;
+  abstract fetchPostByFolderName(item: ManifestItem): Promise<Post | null>;
 }
 
 export default Service;

@@ -37,9 +37,10 @@ class MockService extends Service {
     })));
   }
 
-  async fetchPostByFolderName(folderName: string): Promise<Post | null> {
-    const post = samplePosts.find(post => post.folder === folderName);
-    return Promise.resolve(post || null);
+  async fetchPostByFolderName(item: ManifestItem): Promise<Post | null> {
+    const post = samplePosts.find(post => post.folder === item.folder);
+    if (!post) return null;
+    return Promise.resolve( { ...post, tags: item.tags } as Post);
   }
 }
 
