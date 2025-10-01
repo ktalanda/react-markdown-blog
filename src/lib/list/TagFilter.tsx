@@ -17,8 +17,7 @@ const TagFilter: React.FC<TagFilterProps> = ({
   const service: Service = useMemo(() => createService(serviceType), [serviceType]);
 
   const [availableTags, setAvailableTags] = useState<string[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedTags, setSelectedTags] = useState<string[]>(initialSelectedTags);
+  const [selectedTags] = useState<string[]>(initialSelectedTags);
   
   const fetchAvailableTags = useCallback(async (): Promise<void> => {
     try {
