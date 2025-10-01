@@ -40,7 +40,15 @@ class MockService extends Service {
   async fetchPostByFolderName(item: ManifestItem): Promise<Post | null> {
     const post = samplePosts.find(post => post.folder === item.folder);
     if (!post) return null;
-    return Promise.resolve( { ...post, tags: item.tags } as Post);
+    return Promise.resolve(
+      new Post({
+        name: post.name,
+        date: post.date,
+        content: post.content,
+        folder: post.folder,
+        tags: [...new Set([...post.tags, ...item.tags])] as string[]
+      })
+    );
   }
 }
 
