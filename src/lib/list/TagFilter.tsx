@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Service, { type ServiceType } from '../services/Service';
 import createService from '../services/createService';
-import { Box, Chip, Typography } from '@mui/material';
+import { Box, Chip } from '@mui/material';
 
 interface TagFilterProps {
   serviceType: ServiceType;
@@ -60,14 +60,6 @@ const TagFilter: React.FC<TagFilterProps> = ({
       justifyContent: 'flex-end',
       maxWidth: { xs: '100%', sm: '70%' }
     }}>
-      <Typography
-        variant="body2"
-        color="text.secondary"
-        sx={{ alignSelf: 'center', mr: 1 }}
-      >
-        Filter by:
-      </Typography>
-
       {availableTags.map(tag => (
         <Chip
           key={tag}
