@@ -23,17 +23,18 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
     pagination: { page: 0, hasMore: true, total: 0 },
     loadingMore: false
   });
-
   const service: Service = useMemo(() => createService(serviceType), [serviceType]);
   const navigate = useNavigate();
 
-  const fetchPosts = useCallback(async (page: number, selectedTags: string[] = []): Promise<void> => {
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  const fetchPosts = useCallback(async (page: number, tags: string[] = []): Promise<void> => {
     setPageState(prevState => ({ ...prevState, loadingMore: true }));
 
     try {
       const result: PaginatedResult<Post> = await service.fetchPostsWithPagination(
         { page: page, limit: postsPerPage },
-        selectedTags
+        tags
       );
 
       setPageState(prevState => {
@@ -59,20 +60,21 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
   }, [postsPerPage, service]);
 
   useEffect(() => {
-    void fetchPosts(0);
-  }, [fetchPosts]);
+    void fetchPosts(0, selectedTags);
+  }, [fetchPosts, selectedTags]);
 
   const handleBackClick = (): void => void navigate('/');
 
   const handleTagsChange = useCallback((tags: string[]): void => {
+    setSelectedTags(tags);
     void fetchPosts(0, tags);
   }, [fetchPosts]);
 
   const handleLoadMore = useCallback(() => {
     if (pageState.status === 'content') {
-      void fetchPosts(pageState.pagination.page + 1);
+      void fetchPosts(pageState.pagination.page + 1, selectedTags);
     }
-  }, [fetchPosts, pageState]);
+  }, [fetchPosts, pageState, selectedTags]);
 
   let content: ReactNode;
   switch (pageState.status) {
@@ -108,6 +110,7 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
           Back
         </Button>
         <TagFilter
+          selectedTags={selectedTags}
           onTagsChange={handleTagsChange}
           serviceType={serviceType}
         />

@@ -4,21 +4,19 @@ import createService from '../services/createService';
 import { Box, Chip } from '@mui/material';
 
 interface TagFilterProps {
-  serviceType: ServiceType;
+  selectedTags: string[];
   onTagsChange: (tags: string[]) => void;
-  initialSelectedTags?: string[];
+  serviceType: ServiceType;
 }
 
 const TagFilter: React.FC<TagFilterProps> = ({ 
+  selectedTags,
   onTagsChange,
-  serviceType,
-  initialSelectedTags = []
+  serviceType
 }) => {
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
   const service: Service = useMemo(() => createService(serviceType), [serviceType]);
 
-  const [availableTags, setAvailableTags] = useState<string[]>([]);
-  const [selectedTags] = useState<string[]>(initialSelectedTags);
-  
   const fetchAvailableTags = useCallback(async (): Promise<void> => {
     try {
       const tags = await service.getAllTags();
@@ -29,21 +27,12 @@ const TagFilter: React.FC<TagFilterProps> = ({
   }, [service]);
 
   const handleTagClick = (tag: string): void => {
-    console.log('Tag clicked:', tag);
-    // Tags selection needs to be fixed doesn't work properly
-    // setSelectedTags(prevTags => {
-    //   const isSelected = prevTags.includes(tag);
-    //   const newTags = isSelected
-    //     ? prevTags.filter(t => t !== tag)
-    //     : [...prevTags, tag];
-      
-    //   return newTags;
-    // });
+    const isSelected = selectedTags.includes(tag);
+    const newTags = isSelected
+      ? selectedTags.filter(t => t !== tag)
+      : [...selectedTags, tag];
+    onTagsChange(newTags);
   };
-  
-  useEffect(() => {
-    onTagsChange(selectedTags);
-  }, [selectedTags, onTagsChange]);
 
   useEffect(() => {
     void fetchAvailableTags();
