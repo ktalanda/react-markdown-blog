@@ -3,6 +3,8 @@ import { Routes, Route } from 'react-router-dom';
 
 import Page from './list/Page';
 import PostPage from './post/PostPage';
+import { AnalyticsProvider } from './analytics/AnalyticsProvider';
+import type { AnalyticsStream } from './analytics/AnalyticsStream';
 
 import type { ServiceType } from './services/Service';
 
@@ -11,6 +13,7 @@ export interface BlogProps {
   serviceType: ServiceType;
   postsPerPage?: number;
   theme?: Theme;
+  analyticsStream?: AnalyticsStream;
 }
 
 const defaultTheme = createTheme({
@@ -31,10 +34,12 @@ const defaultTheme = createTheme({
 
 const Blog: React.FC<BlogProps> = (props) => (
   <ThemeProvider theme={props.theme || defaultTheme}>
-    <Routes>
-      <Route path="/" element={<Page {...props} />} />
-      <Route path="/:postId" element={<PostPage {...props} />} />
-    </Routes>
+    <AnalyticsProvider stream={props.analyticsStream}>
+      <Routes>
+        <Route path="/" element={<Page {...props} />} />
+        <Route path="/:postId" element={<PostPage {...props} />} />
+      </Routes>
+    </AnalyticsProvider>
   </ThemeProvider>
 );
 

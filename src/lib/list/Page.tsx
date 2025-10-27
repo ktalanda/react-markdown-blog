@@ -15,6 +15,7 @@ import createService from '../services/createService';
 
 import ErrorView from './ErrorView';
 import ContentView from './ContentView';
+import { useAnalytics } from '../hooks/useAnalytics';
 
 const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }) => {
   const [pageState, setPageState] = useState<PageState>({
@@ -27,6 +28,7 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
   const navigate = useNavigate();
 
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const { stream: analyticsStream } = useAnalytics();
 
   const fetchPosts = useCallback(async (page: number, tags: string[] = []): Promise<void> => {
     setPageState(prevState => ({ ...prevState, loadingMore: true }));
@@ -60,8 +62,10 @@ const Page: React.FC<BlogProps> = ({ footerName, serviceType, postsPerPage = 5 }
   }, [postsPerPage, service]);
 
   useEffect(() => {
+    analyticsStream?.trackPageView('/blog', 'Home');
+    
     void fetchPosts(0, selectedTags);
-  }, [fetchPosts, selectedTags]);
+  }, [fetchPosts, selectedTags, analyticsStream]);
 
   const handleBackClick = (): void => void navigate('/');
 

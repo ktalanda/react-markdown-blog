@@ -10,6 +10,7 @@ import type { BlogProps } from '../Blog';
 import { useEffect, useMemo, useState } from 'react';
 import type { Post } from '../Post';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAnalytics } from '../hooks/useAnalytics';
 import Service from '../services/Service';
 
 import './PostPage.css';
@@ -20,6 +21,7 @@ const PostPage: React.FC<BlogProps> = ({ footerName, serviceType }) => {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { stream: analyticsStream } = useAnalytics();
 
   const service: Service = useMemo(() => createService(serviceType), [serviceType]);
   const navigate = useNavigate();
@@ -29,6 +31,8 @@ const PostPage: React.FC<BlogProps> = ({ footerName, serviceType }) => {
   };
 
   useEffect(() => {
+    analyticsStream?.trackPageView('/blog_post', 'Blog Post', postId || 'unknown');
+
     const fetchPost = async (): Promise<void> => {
       if (!postId) {
         setError('No post ID provided');
@@ -51,7 +55,7 @@ const PostPage: React.FC<BlogProps> = ({ footerName, serviceType }) => {
     };
 
     void fetchPost();
-  }, [postId, service]);
+  }, [postId, service, analyticsStream]);
 
   if (loading) {
     return (
