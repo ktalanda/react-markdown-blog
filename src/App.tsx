@@ -26,7 +26,7 @@ function App(): JSX.Element {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/blog/*" element={<Blog
-          serviceType={{ source: 'cdn', url: 'https://wavecoder.com.au/blog' } as ServiceType} footerName="Sample Blog"
+          serviceType={{ source: 'cdn', url: 'https://d2xowzlxhd4k5y.cloudfront.net/blog' } as ServiceType} footerName="Sample Blog"
           analyticsStream={analyticsStream}
         />} />
       </Routes>
